@@ -1,0 +1,25 @@
+/*
+ * Led.h
+ *
+ *  Created on: 5 sep. 2016
+ *      Author: Bjorn
+ */
+
+#ifndef HEADERS_LED_H_
+#define HEADERS_LED_H_
+
+#include "Component.h"
+#include "stm32f4xx.h"
+
+class Led : Component
+{
+public:
+	virtual void Startup();
+	virtual void Shutdown();
+	virtual void Sleep();
+	virtual void WakeUp();
+	virtual int Poll();
+};
+
+
+#endif /* HEADERS_LED_H_ */

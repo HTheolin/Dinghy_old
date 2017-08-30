@@ -1,0 +1,88 @@
+﻿\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{siunitx}
+
+\title{Dinghy}
+\author{Mattias Kallsaby, ..., .., .. }
+\date{August 2016}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Abstract...
+\end{abstract}
+
+
+\section{Introduction}
+Introducation...
+
+% Fredrik
+\section{Sensors}
+To collect data or information that can be processed and give the user feedback, some kind of sensors is necessary. Two parts of the boat that's in the interest of measurements is the center board and rudder. 
+
+When sailing the center board will be exposed to forces depending of the boats current inclination and wind. One way to measure the forces acting on the center board is to use a pressure sensor. The pressure must be measured on both sides of the center board to determine if the center board is slowing the boat down. 
+
+The most efficient way to do that is to use a differential pressure sensor, which directly compares the pressure on each side. The advantage to use a differential pressure sensor versus an absolute- or gauge- pressure sensor is that only one sensor is needed, and the differential pressure value which is wanted comes directly from the pressure sensor. So no extra calculations is needed and less pins is used on the MCU (microprocessor) as only one sensor is used. 
+
+The idea is to mount the pressure sensor in the top of the inside of the center board, with plastic pipes going from the pressure sensor to the bottom of the center board through holes on each sides.
+
+Another idea to measure the forces on the center board is to use Strain gauges, which would be mounted on each side of the center board. The strain gauge is a resistance which varies when stretched. So a strain gauge could be a eligible solution to see the forces acting on the center board. The advantage with using strain gauges instead of a pressure sensor is that the installation/mounting would be easier, as it might be possible to avoid modifying the center board in a irreversible way, i.e drilling holes. 
+
+The possibility to do an exterior installation is a especially good trait when it comes to measure the forces acting on the rudder. It will be much more difficult to mount the pressure sensors on the rudder as the sensor won't be inside the rudder and it must be enable to move. It is also possible that the rudder is solid which complicates the mounting of the pressure sensor even more. That's why the strain gauges could be a good alternative at least on the rudder.
+
+Another thing that can be relevant to know is the height of the center board, if it is pulled up or lowered. Obviously the skipper (user) will know if he/she is pulling the center board up or down, but the information can be useful for later analysis and feedback. 
+
+The first idea to measure the height of the center board was using a ultrasonic sensor, the advantage of using a ultrasonic sensor is that it is weather resistant. The ultrasonic sensor won't be affected much if gets wet, which is a requirement. The disadvantage of the ultrasonic sensor is that it's hard to find one within the right range ~5-100 cm. Most ultrasonic sensors seems to be in the range zone of either ~5-50 cm or ~30-500 cm. Another problem is the mounting of the sensor on the boat so it can measure the center board, that problem is yet to be solved.
+
+Another option to measure the center board height is to use a optical sensor, if black stripes is taped on the center board. The advantage of this method is that it is much easier to implement/mount on the boat. The disadvantages is that is impossible to say the absolute height of the center board just from the information given from the sensor, as the sensor only reacts to changes (when the center board goes up or down). So one must know beforehand the starting point and the number of stripes, and from that calculate the height. Another downside with the optical sensor compared to the ultrasonic sensor is that the measured heights is limited to the amount of stripes, but the amount of measured heights should still give good enough result anyway.     
+
+
+
+% David
+\section{Positioning and Orientation} 
+The inclination on the boat will be measured with the L3GD20 gyroscope from STMicroelectronics. This gyroscope have a digital output interference, and communicate either with I$^2$C or SPI. It also have a built in high-/low-pass filter, with selectable bandwidth.
+
+First thought was to use a IMU unit, which contains both a gyroscope, accelerometer and sometimes magnetometer. But this seemed a bit unnecessary when we are only interested to find out the inclination from this unit. 
+
+To maximise the position of the Dinghy we will use differential GPS. It will basically work as a normal GPS with help from a reference station that stands on a fixed point and sends measurement errors.
+
+% Jesper
+\section{Component communication}
+The first prototype board will utilize the bluetooth module chip RN42-I/RM.
+It utilizes the bluetooth 2.1 communication standard with enhanced data rate mode
+for faster data transfer. This particular module has a built in antenna on the chip
+this simplifies our design. However if the encasing of the centerboard proves to be
+problematic for data transfer it is possible to replace it with the model RN42N-I/RM
+which would allow us to connect an external antenna instead. The RN42 is seen to be a suitable
+choice due to it being a commonly used module so plenty of documentation is available.
+
+% Niklas
+\section{Real-time Feedback}
+
+% Alexander
+\section{Application}
+The application is what the user will be interested in looking at. It houses all the functionality necessary for feedback, analysis and data logging. The application may be designed with a "Model view controller" based architecture in order to keep things simple, maintanable with android development.The application will be writen for android machines since many devices are android based.
+The main menue of this application will house three different views which are the feedback view, statistical view, and the graph view.
+The feedback view displays real-time data in regards to the status of the boat which includes velocities, GPS location, forces acting on the center board and rudder. There will also be graphical feedback element that is intuitive in a way such that the user is able to approriatly decide actions that improves his/her performance whilst sailing.
+The statistical view will contain data in regards to the user's activity whilst sailing and will show his/her performance in numbers using statistical methods and further analysis for improvment. The graph viewer is closely related to the statistcal viewer and will contain graphical representions of the data contained in the statistical viewer.
+
+% Mattias
+\section{Logging and Statistics}
+The logging for this system can be put either on the mcu cards or it could be handled on the android application. Smartphones already have an internal storage and some even external so by putting it on the phone will be a trivial solution. Another benefit of having it on the android device will be the extraction of data to an external device such as a pc will be eiser and we wont have to think about having a removable sd card that must also be waterproof.
+
+The loggs will be stored using binary files to save on disk space. Disk space usage is calculated as &Bytes per sample*Sample per second/3600*Days per year*Hours&. For extremly active sailer that sails 4 hour per day 180 days a year and when we sample two times a seconds the storage suage would be 119 mb. 119 mb is not that bad but this value is asuming we save the data in a optimal way using binary files. If we would use for example text files this number would have to be multiplied by something like 6-12 times depending on how the data looks, making the disk space go up to 0.714GB-1.428GB.  
+
+
+% Björn
+\section{Energy}
+The running time of Dinghy project is decided by the size of the battery and energy efficiency factors. Energy efficiency will primarily be dependent on 3 factors, sleep-mode for the MCU, power-gating for components not needed and the choice of components.
+
+The STM32F401RE MCU has very low energy consumption while running, it also has several energy saving options to prolong battery life. Average powerdraw while running is rated at \SI{146}{\micro\ampere}/MHz down to \SI{2.4}{\micro\ampere} while in deep sleep. Therefore it is important to maximize deep-sleep time and keep as low update rate as possible. The default update rate will be kept at 10Hz
+
+All major components are power gated, meaning their power draw while not being used is close to zero. The frequency with which these components are activated and polled has a big impact on battery life, therefore these will be kept to a minimum to maximize battery life. Some components need to be activated some time prior to being polled for data to stabilize their inputs, these will be activated a few cycles in advance to allow them to provide stable output.
+
+The easiest way to increase battery time is to attach a bigger battery. Dinghy project utilizes a 3.3V baseline for MCU and components with an average power draw below \SI{1}{\ampere}.
+
+\end{document}

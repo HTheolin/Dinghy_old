@@ -1,0 +1,3945 @@
+
+Dinghy.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   00000188  08000000  08000000  00010000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         000016f4  08000188  08000188  00010188  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       000000d4  0800187c  0800187c  0001187c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .init_array   00000014  08001950  08001950  00011950  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  4 .fini_array   00000004  08001964  08001964  00011964  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  5 .data         00000068  20000000  08001968  00020000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .ccmram       00000000  10000000  10000000  00020068  2**0
+                  CONTENTS
+  7 .bss          000000d0  20000068  20000068  00020068  2**2
+                  ALLOC
+  8 ._user_heap_stack 00000400  20000138  20000138  00020068  2**0
+                  ALLOC
+  9 .ARM.attributes 00000030  00000000  00000000  00020068  2**0
+                  CONTENTS, READONLY
+ 10 .debug_info   00009493  00000000  00000000  00020098  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_abbrev 0000111a  00000000  00000000  0002952b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_aranges 00000590  00000000  00000000  0002a648  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_ranges 00000528  00000000  00000000  0002abd8  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .debug_line   00001b24  00000000  00000000  0002b100  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 15 .debug_str    0000b130  00000000  00000000  0002cc24  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 16 .comment      0000007e  00000000  00000000  00037d54  2**0
+                  CONTENTS, READONLY
+ 17 .debug_frame  000087b4  00000000  00000000  00037dd4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 18 .stab         00000030  00000000  00000000  00040778  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 19 .stabstr      000001ed  00000000  00000000  00040588  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+08000188 <__do_global_dtors_aux>:
+ 8000188:	b510      	push	{r4, lr}
+ 800018a:	4c05      	ldr	r4, [pc, #20]	; (80001a0 <__do_global_dtors_aux+0x18>)
+ 800018c:	7823      	ldrb	r3, [r4, #0]
+ 800018e:	b933      	cbnz	r3, 800019e <__do_global_dtors_aux+0x16>
+ 8000190:	4b04      	ldr	r3, [pc, #16]	; (80001a4 <__do_global_dtors_aux+0x1c>)
+ 8000192:	b113      	cbz	r3, 800019a <__do_global_dtors_aux+0x12>
+ 8000194:	4804      	ldr	r0, [pc, #16]	; (80001a8 <__do_global_dtors_aux+0x20>)
+ 8000196:	f3af 8000 	nop.w
+ 800019a:	2301      	movs	r3, #1
+ 800019c:	7023      	strb	r3, [r4, #0]
+ 800019e:	bd10      	pop	{r4, pc}
+ 80001a0:	20000068 	.word	0x20000068
+ 80001a4:	00000000 	.word	0x00000000
+ 80001a8:	08001864 	.word	0x08001864
+
+080001ac <frame_dummy>:
+ 80001ac:	b508      	push	{r3, lr}
+ 80001ae:	4b03      	ldr	r3, [pc, #12]	; (80001bc <frame_dummy+0x10>)
+ 80001b0:	b11b      	cbz	r3, 80001ba <frame_dummy+0xe>
+ 80001b2:	4903      	ldr	r1, [pc, #12]	; (80001c0 <frame_dummy+0x14>)
+ 80001b4:	4803      	ldr	r0, [pc, #12]	; (80001c4 <frame_dummy+0x18>)
+ 80001b6:	f3af 8000 	nop.w
+ 80001ba:	bd08      	pop	{r3, pc}
+ 80001bc:	00000000 	.word	0x00000000
+ 80001c0:	2000006c 	.word	0x2000006c
+ 80001c4:	08001864 	.word	0x08001864
+
+080001c8 <GPIO_Init>:
+  * @param  GPIO_InitStruct: pointer to a GPIO_InitTypeDef structure that contains
+  *         the configuration information for the specified GPIO peripheral.
+  * @retval None
+  */
+void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
+{
+ 80001c8:	b480      	push	{r7}
+ 80001ca:	b087      	sub	sp, #28
+ 80001cc:	af00      	add	r7, sp, #0
+ 80001ce:	6078      	str	r0, [r7, #4]
+ 80001d0:	6039      	str	r1, [r7, #0]
+  uint32_t pinpos = 0x00, pos = 0x00 , currentpin = 0x00;
+ 80001d2:	2300      	movs	r3, #0
+ 80001d4:	617b      	str	r3, [r7, #20]
+ 80001d6:	2300      	movs	r3, #0
+ 80001d8:	613b      	str	r3, [r7, #16]
+ 80001da:	2300      	movs	r3, #0
+ 80001dc:	60fb      	str	r3, [r7, #12]
+  assert_param(IS_GPIO_MODE(GPIO_InitStruct->GPIO_Mode));
+  assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
+
+  /* ------------------------- Configure the port pins ---------------- */
+  /*-- GPIO Mode Configuration --*/
+  for (pinpos = 0x00; pinpos < 0x10; pinpos++)
+ 80001de:	2300      	movs	r3, #0
+ 80001e0:	617b      	str	r3, [r7, #20]
+ 80001e2:	e076      	b.n	80002d2 <GPIO_Init+0x10a>
+  {
+    pos = ((uint32_t)0x01) << pinpos;
+ 80001e4:	2201      	movs	r2, #1
+ 80001e6:	697b      	ldr	r3, [r7, #20]
+ 80001e8:	fa02 f303 	lsl.w	r3, r2, r3
+ 80001ec:	613b      	str	r3, [r7, #16]
+    /* Get the port pins position */
+    currentpin = (GPIO_InitStruct->GPIO_Pin) & pos;
+ 80001ee:	683b      	ldr	r3, [r7, #0]
+ 80001f0:	681a      	ldr	r2, [r3, #0]
+ 80001f2:	693b      	ldr	r3, [r7, #16]
+ 80001f4:	4013      	ands	r3, r2
+ 80001f6:	60fb      	str	r3, [r7, #12]
+
+    if (currentpin == pos)
+ 80001f8:	68fa      	ldr	r2, [r7, #12]
+ 80001fa:	693b      	ldr	r3, [r7, #16]
+ 80001fc:	429a      	cmp	r2, r3
+ 80001fe:	d165      	bne.n	80002cc <GPIO_Init+0x104>
+    {
+      GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << (pinpos * 2));
+ 8000200:	687b      	ldr	r3, [r7, #4]
+ 8000202:	681a      	ldr	r2, [r3, #0]
+ 8000204:	697b      	ldr	r3, [r7, #20]
+ 8000206:	005b      	lsls	r3, r3, #1
+ 8000208:	2103      	movs	r1, #3
+ 800020a:	fa01 f303 	lsl.w	r3, r1, r3
+ 800020e:	43db      	mvns	r3, r3
+ 8000210:	401a      	ands	r2, r3
+ 8000212:	687b      	ldr	r3, [r7, #4]
+ 8000214:	601a      	str	r2, [r3, #0]
+      GPIOx->MODER |= (((uint32_t)GPIO_InitStruct->GPIO_Mode) << (pinpos * 2));
+ 8000216:	687b      	ldr	r3, [r7, #4]
+ 8000218:	681a      	ldr	r2, [r3, #0]
+ 800021a:	683b      	ldr	r3, [r7, #0]
+ 800021c:	791b      	ldrb	r3, [r3, #4]
+ 800021e:	4619      	mov	r1, r3
+ 8000220:	697b      	ldr	r3, [r7, #20]
+ 8000222:	005b      	lsls	r3, r3, #1
+ 8000224:	fa01 f303 	lsl.w	r3, r1, r3
+ 8000228:	431a      	orrs	r2, r3
+ 800022a:	687b      	ldr	r3, [r7, #4]
+ 800022c:	601a      	str	r2, [r3, #0]
+
+      if ((GPIO_InitStruct->GPIO_Mode == GPIO_Mode_OUT) || (GPIO_InitStruct->GPIO_Mode == GPIO_Mode_AF))
+ 800022e:	683b      	ldr	r3, [r7, #0]
+ 8000230:	791b      	ldrb	r3, [r3, #4]
+ 8000232:	2b01      	cmp	r3, #1
+ 8000234:	d003      	beq.n	800023e <GPIO_Init+0x76>
+ 8000236:	683b      	ldr	r3, [r7, #0]
+ 8000238:	791b      	ldrb	r3, [r3, #4]
+ 800023a:	2b02      	cmp	r3, #2
+ 800023c:	d12e      	bne.n	800029c <GPIO_Init+0xd4>
+      {
+        /* Check Speed mode parameters */
+        assert_param(IS_GPIO_SPEED(GPIO_InitStruct->GPIO_Speed));
+
+        /* Speed mode configuration */
+        GPIOx->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0 << (pinpos * 2));
+ 800023e:	687b      	ldr	r3, [r7, #4]
+ 8000240:	689a      	ldr	r2, [r3, #8]
+ 8000242:	697b      	ldr	r3, [r7, #20]
+ 8000244:	005b      	lsls	r3, r3, #1
+ 8000246:	2103      	movs	r1, #3
+ 8000248:	fa01 f303 	lsl.w	r3, r1, r3
+ 800024c:	43db      	mvns	r3, r3
+ 800024e:	401a      	ands	r2, r3
+ 8000250:	687b      	ldr	r3, [r7, #4]
+ 8000252:	609a      	str	r2, [r3, #8]
+        GPIOx->OSPEEDR |= ((uint32_t)(GPIO_InitStruct->GPIO_Speed) << (pinpos * 2));
+ 8000254:	687b      	ldr	r3, [r7, #4]
+ 8000256:	689a      	ldr	r2, [r3, #8]
+ 8000258:	683b      	ldr	r3, [r7, #0]
+ 800025a:	795b      	ldrb	r3, [r3, #5]
+ 800025c:	4619      	mov	r1, r3
+ 800025e:	697b      	ldr	r3, [r7, #20]
+ 8000260:	005b      	lsls	r3, r3, #1
+ 8000262:	fa01 f303 	lsl.w	r3, r1, r3
+ 8000266:	431a      	orrs	r2, r3
+ 8000268:	687b      	ldr	r3, [r7, #4]
+ 800026a:	609a      	str	r2, [r3, #8]
+
+        /* Check Output mode parameters */
+        assert_param(IS_GPIO_OTYPE(GPIO_InitStruct->GPIO_OType));
+
+        /* Output mode configuration*/
+        GPIOx->OTYPER  &= ~((GPIO_OTYPER_OT_0) << ((uint16_t)pinpos)) ;
+ 800026c:	687b      	ldr	r3, [r7, #4]
+ 800026e:	685a      	ldr	r2, [r3, #4]
+ 8000270:	697b      	ldr	r3, [r7, #20]
+ 8000272:	b29b      	uxth	r3, r3
+ 8000274:	2101      	movs	r1, #1
+ 8000276:	fa01 f303 	lsl.w	r3, r1, r3
+ 800027a:	43db      	mvns	r3, r3
+ 800027c:	401a      	ands	r2, r3
+ 800027e:	687b      	ldr	r3, [r7, #4]
+ 8000280:	605a      	str	r2, [r3, #4]
+        GPIOx->OTYPER |= (uint16_t)(((uint16_t)GPIO_InitStruct->GPIO_OType) << ((uint16_t)pinpos));
+ 8000282:	687b      	ldr	r3, [r7, #4]
+ 8000284:	685a      	ldr	r2, [r3, #4]
+ 8000286:	683b      	ldr	r3, [r7, #0]
+ 8000288:	799b      	ldrb	r3, [r3, #6]
+ 800028a:	4619      	mov	r1, r3
+ 800028c:	697b      	ldr	r3, [r7, #20]
+ 800028e:	b29b      	uxth	r3, r3
+ 8000290:	fa01 f303 	lsl.w	r3, r1, r3
+ 8000294:	b29b      	uxth	r3, r3
+ 8000296:	431a      	orrs	r2, r3
+ 8000298:	687b      	ldr	r3, [r7, #4]
+ 800029a:	605a      	str	r2, [r3, #4]
+      }
+
+      /* Pull-up Pull down resistor configuration*/
+      GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((uint16_t)pinpos * 2));
+ 800029c:	687b      	ldr	r3, [r7, #4]
+ 800029e:	68da      	ldr	r2, [r3, #12]
+ 80002a0:	697b      	ldr	r3, [r7, #20]
+ 80002a2:	b29b      	uxth	r3, r3
+ 80002a4:	005b      	lsls	r3, r3, #1
+ 80002a6:	2103      	movs	r1, #3
+ 80002a8:	fa01 f303 	lsl.w	r3, r1, r3
+ 80002ac:	43db      	mvns	r3, r3
+ 80002ae:	401a      	ands	r2, r3
+ 80002b0:	687b      	ldr	r3, [r7, #4]
+ 80002b2:	60da      	str	r2, [r3, #12]
+      GPIOx->PUPDR |= (((uint32_t)GPIO_InitStruct->GPIO_PuPd) << (pinpos * 2));
+ 80002b4:	687b      	ldr	r3, [r7, #4]
+ 80002b6:	68da      	ldr	r2, [r3, #12]
+ 80002b8:	683b      	ldr	r3, [r7, #0]
+ 80002ba:	79db      	ldrb	r3, [r3, #7]
+ 80002bc:	4619      	mov	r1, r3
+ 80002be:	697b      	ldr	r3, [r7, #20]
+ 80002c0:	005b      	lsls	r3, r3, #1
+ 80002c2:	fa01 f303 	lsl.w	r3, r1, r3
+ 80002c6:	431a      	orrs	r2, r3
+ 80002c8:	687b      	ldr	r3, [r7, #4]
+ 80002ca:	60da      	str	r2, [r3, #12]
+  assert_param(IS_GPIO_MODE(GPIO_InitStruct->GPIO_Mode));
+  assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
+
+  /* ------------------------- Configure the port pins ---------------- */
+  /*-- GPIO Mode Configuration --*/
+  for (pinpos = 0x00; pinpos < 0x10; pinpos++)
+ 80002cc:	697b      	ldr	r3, [r7, #20]
+ 80002ce:	3301      	adds	r3, #1
+ 80002d0:	617b      	str	r3, [r7, #20]
+ 80002d2:	697b      	ldr	r3, [r7, #20]
+ 80002d4:	2b0f      	cmp	r3, #15
+ 80002d6:	d985      	bls.n	80001e4 <GPIO_Init+0x1c>
+      /* Pull-up Pull down resistor configuration*/
+      GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((uint16_t)pinpos * 2));
+      GPIOx->PUPDR |= (((uint32_t)GPIO_InitStruct->GPIO_PuPd) << (pinpos * 2));
+    }
+  }
+}
+ 80002d8:	bf00      	nop
+ 80002da:	371c      	adds	r7, #28
+ 80002dc:	46bd      	mov	sp, r7
+ 80002de:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80002e2:	4770      	bx	lr
+
+080002e4 <GPIO_SetBits>:
+  * @param  GPIO_Pin: specifies the port bits to be written.
+  *          This parameter can be any combination of GPIO_Pin_x where x can be (0..15).
+  * @retval None
+  */
+void GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+ 80002e4:	b480      	push	{r7}
+ 80002e6:	b083      	sub	sp, #12
+ 80002e8:	af00      	add	r7, sp, #0
+ 80002ea:	6078      	str	r0, [r7, #4]
+ 80002ec:	460b      	mov	r3, r1
+ 80002ee:	807b      	strh	r3, [r7, #2]
+  /* Check the parameters */
+  assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+  assert_param(IS_GPIO_PIN(GPIO_Pin));
+
+  GPIOx->BSRRL = GPIO_Pin;
+ 80002f0:	687b      	ldr	r3, [r7, #4]
+ 80002f2:	887a      	ldrh	r2, [r7, #2]
+ 80002f4:	831a      	strh	r2, [r3, #24]
+}
+ 80002f6:	bf00      	nop
+ 80002f8:	370c      	adds	r7, #12
+ 80002fa:	46bd      	mov	sp, r7
+ 80002fc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000300:	4770      	bx	lr
+ 8000302:	bf00      	nop
+
+08000304 <GPIO_ResetBits>:
+  * @param  GPIO_Pin: specifies the port bits to be written.
+  *          This parameter can be any combination of GPIO_Pin_x where x can be (0..15).
+  * @retval None
+  */
+void GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+ 8000304:	b480      	push	{r7}
+ 8000306:	b083      	sub	sp, #12
+ 8000308:	af00      	add	r7, sp, #0
+ 800030a:	6078      	str	r0, [r7, #4]
+ 800030c:	460b      	mov	r3, r1
+ 800030e:	807b      	strh	r3, [r7, #2]
+  /* Check the parameters */
+  assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+  assert_param(IS_GPIO_PIN(GPIO_Pin));
+
+  GPIOx->BSRRH = GPIO_Pin;
+ 8000310:	687b      	ldr	r3, [r7, #4]
+ 8000312:	887a      	ldrh	r2, [r7, #2]
+ 8000314:	835a      	strh	r2, [r3, #26]
+}
+ 8000316:	bf00      	nop
+ 8000318:	370c      	adds	r7, #12
+ 800031a:	46bd      	mov	sp, r7
+ 800031c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000320:	4770      	bx	lr
+ 8000322:	bf00      	nop
+
+08000324 <RCC_AHB1PeriphClockCmd>:
+  * @param  NewState: new state of the specified peripheral clock.
+  *          This parameter can be: ENABLE or DISABLE.
+  * @retval None
+  */
+void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState)
+{
+ 8000324:	b480      	push	{r7}
+ 8000326:	b083      	sub	sp, #12
+ 8000328:	af00      	add	r7, sp, #0
+ 800032a:	6078      	str	r0, [r7, #4]
+ 800032c:	460b      	mov	r3, r1
+ 800032e:	70fb      	strb	r3, [r7, #3]
+  /* Check the parameters */
+  assert_param(IS_RCC_AHB1_CLOCK_PERIPH(RCC_AHB1Periph));
+
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  if (NewState != DISABLE)
+ 8000330:	78fb      	ldrb	r3, [r7, #3]
+ 8000332:	2b00      	cmp	r3, #0
+ 8000334:	d006      	beq.n	8000344 <RCC_AHB1PeriphClockCmd+0x20>
+  {
+    RCC->AHB1ENR |= RCC_AHB1Periph;
+ 8000336:	490a      	ldr	r1, [pc, #40]	; (8000360 <RCC_AHB1PeriphClockCmd+0x3c>)
+ 8000338:	4b09      	ldr	r3, [pc, #36]	; (8000360 <RCC_AHB1PeriphClockCmd+0x3c>)
+ 800033a:	6b1a      	ldr	r2, [r3, #48]	; 0x30
+ 800033c:	687b      	ldr	r3, [r7, #4]
+ 800033e:	4313      	orrs	r3, r2
+ 8000340:	630b      	str	r3, [r1, #48]	; 0x30
+  }
+  else
+  {
+    RCC->AHB1ENR &= ~RCC_AHB1Periph;
+  }
+}
+ 8000342:	e006      	b.n	8000352 <RCC_AHB1PeriphClockCmd+0x2e>
+  {
+    RCC->AHB1ENR |= RCC_AHB1Periph;
+  }
+  else
+  {
+    RCC->AHB1ENR &= ~RCC_AHB1Periph;
+ 8000344:	4906      	ldr	r1, [pc, #24]	; (8000360 <RCC_AHB1PeriphClockCmd+0x3c>)
+ 8000346:	4b06      	ldr	r3, [pc, #24]	; (8000360 <RCC_AHB1PeriphClockCmd+0x3c>)
+ 8000348:	6b1a      	ldr	r2, [r3, #48]	; 0x30
+ 800034a:	687b      	ldr	r3, [r7, #4]
+ 800034c:	43db      	mvns	r3, r3
+ 800034e:	4013      	ands	r3, r2
+ 8000350:	630b      	str	r3, [r1, #48]	; 0x30
+  }
+}
+ 8000352:	bf00      	nop
+ 8000354:	370c      	adds	r7, #12
+ 8000356:	46bd      	mov	sp, r7
+ 8000358:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800035c:	4770      	bx	lr
+ 800035e:	bf00      	nop
+ 8000360:	40023800 	.word	0x40023800
+
+08000364 <_ZN3Led7StartupEv>:
+ *      Author: Bjorn
+ */
+#include "Headers/Led.h"
+
+void Led::Startup()
+{
+ 8000364:	b580      	push	{r7, lr}
+ 8000366:	b084      	sub	sp, #16
+ 8000368:	af00      	add	r7, sp, #0
+ 800036a:	6078      	str	r0, [r7, #4]
+	  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+ 800036c:	2101      	movs	r1, #1
+ 800036e:	2001      	movs	r0, #1
+ 8000370:	f7ff ffd8 	bl	8000324 <RCC_AHB1PeriphClockCmd>
+	  GPIO_InitTypeDef GPIO_InitDef;
+
+	  GPIO_InitDef.GPIO_Pin = GPIO_Pin_5;
+ 8000374:	2320      	movs	r3, #32
+ 8000376:	60bb      	str	r3, [r7, #8]
+	  GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT;
+ 8000378:	2301      	movs	r3, #1
+ 800037a:	733b      	strb	r3, [r7, #12]
+	  GPIO_InitDef.GPIO_OType = GPIO_OType_PP;
+ 800037c:	2300      	movs	r3, #0
+ 800037e:	73bb      	strb	r3, [r7, #14]
+	  GPIO_InitDef.GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 8000380:	2300      	movs	r3, #0
+ 8000382:	73fb      	strb	r3, [r7, #15]
+
+	  GPIO_Init(GPIOA, &GPIO_InitDef);
+ 8000384:	f107 0308 	add.w	r3, r7, #8
+ 8000388:	4619      	mov	r1, r3
+ 800038a:	4803      	ldr	r0, [pc, #12]	; (8000398 <_ZN3Led7StartupEv+0x34>)
+ 800038c:	f7ff ff1c 	bl	80001c8 <GPIO_Init>
+}
+ 8000390:	bf00      	nop
+ 8000392:	3710      	adds	r7, #16
+ 8000394:	46bd      	mov	sp, r7
+ 8000396:	bd80      	pop	{r7, pc}
+ 8000398:	40020000 	.word	0x40020000
+
+0800039c <_ZN3Led8ShutdownEv>:
+
+void Led::Shutdown()
+{
+ 800039c:	b480      	push	{r7}
+ 800039e:	b083      	sub	sp, #12
+ 80003a0:	af00      	add	r7, sp, #0
+ 80003a2:	6078      	str	r0, [r7, #4]
+
+}
+ 80003a4:	bf00      	nop
+ 80003a6:	370c      	adds	r7, #12
+ 80003a8:	46bd      	mov	sp, r7
+ 80003aa:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80003ae:	4770      	bx	lr
+
+080003b0 <_ZN3Led5SleepEv>:
+
+void Led::Sleep()
+{
+ 80003b0:	b580      	push	{r7, lr}
+ 80003b2:	b082      	sub	sp, #8
+ 80003b4:	af00      	add	r7, sp, #0
+ 80003b6:	6078      	str	r0, [r7, #4]
+	GPIO_ResetBits(GPIOA, GPIO_Pin_5);
+ 80003b8:	2120      	movs	r1, #32
+ 80003ba:	4803      	ldr	r0, [pc, #12]	; (80003c8 <_ZN3Led5SleepEv+0x18>)
+ 80003bc:	f7ff ffa2 	bl	8000304 <GPIO_ResetBits>
+}
+ 80003c0:	bf00      	nop
+ 80003c2:	3708      	adds	r7, #8
+ 80003c4:	46bd      	mov	sp, r7
+ 80003c6:	bd80      	pop	{r7, pc}
+ 80003c8:	40020000 	.word	0x40020000
+
+080003cc <_ZN3Led6WakeUpEv>:
+
+void Led::WakeUp()
+{
+ 80003cc:	b580      	push	{r7, lr}
+ 80003ce:	b082      	sub	sp, #8
+ 80003d0:	af00      	add	r7, sp, #0
+ 80003d2:	6078      	str	r0, [r7, #4]
+	GPIO_SetBits(GPIOA, GPIO_Pin_5);
+ 80003d4:	2120      	movs	r1, #32
+ 80003d6:	4803      	ldr	r0, [pc, #12]	; (80003e4 <_ZN3Led6WakeUpEv+0x18>)
+ 80003d8:	f7ff ff84 	bl	80002e4 <GPIO_SetBits>
+}
+ 80003dc:	bf00      	nop
+ 80003de:	3708      	adds	r7, #8
+ 80003e0:	46bd      	mov	sp, r7
+ 80003e2:	bd80      	pop	{r7, pc}
+ 80003e4:	40020000 	.word	0x40020000
+
+080003e8 <_ZN3Led4PollEv>:
+
+int Led::Poll()
+{
+ 80003e8:	b480      	push	{r7}
+ 80003ea:	b083      	sub	sp, #12
+ 80003ec:	af00      	add	r7, sp, #0
+ 80003ee:	6078      	str	r0, [r7, #4]
+	return 0;
+ 80003f0:	2300      	movs	r3, #0
+}
+ 80003f2:	4618      	mov	r0, r3
+ 80003f4:	370c      	adds	r7, #12
+ 80003f6:	46bd      	mov	sp, r7
+ 80003f8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80003fc:	4770      	bx	lr
+ 80003fe:	bf00      	nop
+
+08000400 <_ZnwjPv>:
+void operator delete[](void*, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+  __attribute__((__externally_visible__));
+
+// Default placement versions of operator new.
+inline void* operator new(std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+{ return __p; }
+ 8000400:	b480      	push	{r7}
+ 8000402:	b083      	sub	sp, #12
+ 8000404:	af00      	add	r7, sp, #0
+ 8000406:	6078      	str	r0, [r7, #4]
+ 8000408:	6039      	str	r1, [r7, #0]
+ 800040a:	683b      	ldr	r3, [r7, #0]
+ 800040c:	4618      	mov	r0, r3
+ 800040e:	370c      	adds	r7, #12
+ 8000410:	46bd      	mov	sp, r7
+ 8000412:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000416:	4770      	bx	lr
+
+08000418 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EE10_M_releaseEv>:
+    { ++_M_use_count; }
+
+  template<>
+    inline void
+    _Sp_counted_base<_S_single>::_M_release() noexcept
+    {
+ 8000418:	b580      	push	{r7, lr}
+ 800041a:	b082      	sub	sp, #8
+ 800041c:	af00      	add	r7, sp, #0
+ 800041e:	6078      	str	r0, [r7, #4]
+      if (--_M_use_count == 0)
+ 8000420:	687b      	ldr	r3, [r7, #4]
+ 8000422:	685b      	ldr	r3, [r3, #4]
+ 8000424:	1e5a      	subs	r2, r3, #1
+ 8000426:	687b      	ldr	r3, [r7, #4]
+ 8000428:	605a      	str	r2, [r3, #4]
+ 800042a:	687b      	ldr	r3, [r7, #4]
+ 800042c:	685b      	ldr	r3, [r3, #4]
+ 800042e:	2b00      	cmp	r3, #0
+ 8000430:	bf0c      	ite	eq
+ 8000432:	2301      	moveq	r3, #1
+ 8000434:	2300      	movne	r3, #0
+ 8000436:	b2db      	uxtb	r3, r3
+ 8000438:	2b00      	cmp	r3, #0
+ 800043a:	d019      	beq.n	8000470 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EE10_M_releaseEv+0x58>
+        {
+          _M_dispose();
+ 800043c:	687b      	ldr	r3, [r7, #4]
+ 800043e:	681b      	ldr	r3, [r3, #0]
+ 8000440:	3308      	adds	r3, #8
+ 8000442:	681b      	ldr	r3, [r3, #0]
+ 8000444:	6878      	ldr	r0, [r7, #4]
+ 8000446:	4798      	blx	r3
+          if (--_M_weak_count == 0)
+ 8000448:	687b      	ldr	r3, [r7, #4]
+ 800044a:	689b      	ldr	r3, [r3, #8]
+ 800044c:	1e5a      	subs	r2, r3, #1
+ 800044e:	687b      	ldr	r3, [r7, #4]
+ 8000450:	609a      	str	r2, [r3, #8]
+ 8000452:	687b      	ldr	r3, [r7, #4]
+ 8000454:	689b      	ldr	r3, [r3, #8]
+ 8000456:	2b00      	cmp	r3, #0
+ 8000458:	bf0c      	ite	eq
+ 800045a:	2301      	moveq	r3, #1
+ 800045c:	2300      	movne	r3, #0
+ 800045e:	b2db      	uxtb	r3, r3
+ 8000460:	2b00      	cmp	r3, #0
+ 8000462:	d005      	beq.n	8000470 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EE10_M_releaseEv+0x58>
+            _M_destroy();
+ 8000464:	687b      	ldr	r3, [r7, #4]
+ 8000466:	681b      	ldr	r3, [r3, #0]
+ 8000468:	330c      	adds	r3, #12
+ 800046a:	681b      	ldr	r3, [r3, #0]
+ 800046c:	6878      	ldr	r0, [r7, #4]
+ 800046e:	4798      	blx	r3
+        }
+    }
+ 8000470:	bf00      	nop
+ 8000472:	3708      	adds	r7, #8
+ 8000474:	46bd      	mov	sp, r7
+ 8000476:	bd80      	pop	{r7, pc}
+
+08000478 <main>:
+**  Abstract: main program
+**
+**===========================================================================
+*/
+int main(void)
+{
+ 8000478:	b580      	push	{r7, lr}
+ 800047a:	b084      	sub	sp, #16
+ 800047c:	af00      	add	r7, sp, #0
+	std::shared_ptr<Led> led = std::make_shared<Led>();
+ 800047e:	f107 0308 	add.w	r3, r7, #8
+ 8000482:	4618      	mov	r0, r3
+ 8000484:	f000 f854 	bl	8000530 <_ZSt11make_sharedI3LedIEESt10shared_ptrIT_EDpOT0_>
+	led->Startup();
+ 8000488:	f107 0308 	add.w	r3, r7, #8
+ 800048c:	4618      	mov	r0, r3
+ 800048e:	f000 f87b 	bl	8000588 <_ZNKSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EEptEv>
+ 8000492:	4602      	mov	r2, r0
+ 8000494:	6813      	ldr	r3, [r2, #0]
+ 8000496:	681b      	ldr	r3, [r3, #0]
+ 8000498:	4610      	mov	r0, r2
+ 800049a:	4798      	blx	r3
+
+	volatile int i = 0;
+ 800049c:	2300      	movs	r3, #0
+ 800049e:	607b      	str	r3, [r7, #4]
+	volatile int j = 0;
+ 80004a0:	2300      	movs	r3, #0
+ 80004a2:	603b      	str	r3, [r7, #0]
+	while (1)
+	{
+		if (j == 0)
+ 80004a4:	683b      	ldr	r3, [r7, #0]
+ 80004a6:	2b00      	cmp	r3, #0
+ 80004a8:	bf0c      	ite	eq
+ 80004aa:	2301      	moveq	r3, #1
+ 80004ac:	2300      	movne	r3, #0
+ 80004ae:	b2db      	uxtb	r3, r3
+ 80004b0:	2b00      	cmp	r3, #0
+ 80004b2:	d00d      	beq.n	80004d0 <main+0x58>
+		{
+			led->WakeUp();
+ 80004b4:	f107 0308 	add.w	r3, r7, #8
+ 80004b8:	4618      	mov	r0, r3
+ 80004ba:	f000 f865 	bl	8000588 <_ZNKSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EEptEv>
+ 80004be:	4602      	mov	r2, r0
+ 80004c0:	6813      	ldr	r3, [r2, #0]
+ 80004c2:	330c      	adds	r3, #12
+ 80004c4:	681b      	ldr	r3, [r3, #0]
+ 80004c6:	4610      	mov	r0, r2
+ 80004c8:	4798      	blx	r3
+			j = 1;
+ 80004ca:	2301      	movs	r3, #1
+ 80004cc:	603b      	str	r3, [r7, #0]
+ 80004ce:	e00c      	b.n	80004ea <main+0x72>
+		}
+		else
+		{
+			led->Sleep();
+ 80004d0:	f107 0308 	add.w	r3, r7, #8
+ 80004d4:	4618      	mov	r0, r3
+ 80004d6:	f000 f857 	bl	8000588 <_ZNKSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EEptEv>
+ 80004da:	4602      	mov	r2, r0
+ 80004dc:	6813      	ldr	r3, [r2, #0]
+ 80004de:	3308      	adds	r3, #8
+ 80004e0:	681b      	ldr	r3, [r3, #0]
+ 80004e2:	4610      	mov	r0, r2
+ 80004e4:	4798      	blx	r3
+			j = 0;
+ 80004e6:	2300      	movs	r3, #0
+ 80004e8:	603b      	str	r3, [r7, #0]
+		}
+		for (i = 0; i < 500000; i++);
+ 80004ea:	2300      	movs	r3, #0
+ 80004ec:	607b      	str	r3, [r7, #4]
+ 80004ee:	687b      	ldr	r3, [r7, #4]
+ 80004f0:	4a05      	ldr	r2, [pc, #20]	; (8000508 <main+0x90>)
+ 80004f2:	4293      	cmp	r3, r2
+ 80004f4:	bfd4      	ite	le
+ 80004f6:	2301      	movle	r3, #1
+ 80004f8:	2300      	movgt	r3, #0
+ 80004fa:	b2db      	uxtb	r3, r3
+ 80004fc:	2b00      	cmp	r3, #0
+ 80004fe:	d0d1      	beq.n	80004a4 <main+0x2c>
+ 8000500:	687b      	ldr	r3, [r7, #4]
+ 8000502:	3301      	adds	r3, #1
+ 8000504:	607b      	str	r3, [r7, #4]
+ 8000506:	e7f2      	b.n	80004ee <main+0x76>
+ 8000508:	0007a11f 	.word	0x0007a11f
+
+0800050c <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EE10_M_destroyEv>:
+      virtual void
+      _M_dispose() noexcept = 0;
+      
+      // Called when _M_weak_count drops to zero.
+      virtual void
+      _M_destroy() noexcept
+ 800050c:	b580      	push	{r7, lr}
+ 800050e:	b082      	sub	sp, #8
+ 8000510:	af00      	add	r7, sp, #0
+ 8000512:	6078      	str	r0, [r7, #4]
+      { delete this; }
+ 8000514:	687b      	ldr	r3, [r7, #4]
+ 8000516:	2b00      	cmp	r3, #0
+ 8000518:	d005      	beq.n	8000526 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EE10_M_destroyEv+0x1a>
+ 800051a:	687b      	ldr	r3, [r7, #4]
+ 800051c:	681b      	ldr	r3, [r3, #0]
+ 800051e:	3304      	adds	r3, #4
+ 8000520:	681b      	ldr	r3, [r3, #0]
+ 8000522:	6878      	ldr	r0, [r7, #4]
+ 8000524:	4798      	blx	r3
+ 8000526:	bf00      	nop
+ 8000528:	3708      	adds	r7, #8
+ 800052a:	46bd      	mov	sp, r7
+ 800052c:	bd80      	pop	{r7, pc}
+ 800052e:	bf00      	nop
+
+08000530 <_ZSt11make_sharedI3LedIEESt10shared_ptrIT_EDpOT0_>:
+   *  @throw  std::bad_alloc, or an exception thrown from the
+   *          constructor of @a _Tp.
+   */
+  template<typename _Tp, typename... _Args>
+    inline shared_ptr<_Tp>
+    make_shared(_Args&&... __args)
+ 8000530:	b580      	push	{r7, lr}
+ 8000532:	b084      	sub	sp, #16
+ 8000534:	af00      	add	r7, sp, #0
+ 8000536:	6078      	str	r0, [r7, #4]
+    {
+      typedef typename std::remove_const<_Tp>::type _Tp_nc;
+      return std::allocate_shared<_Tp>(std::allocator<_Tp_nc>(),
+				       std::forward<_Args>(__args)...);
+ 8000538:	f107 030c 	add.w	r3, r7, #12
+ 800053c:	4618      	mov	r0, r3
+ 800053e:	f000 f855 	bl	80005ec <_ZNSaI3LedEC1Ev>
+ 8000542:	687b      	ldr	r3, [r7, #4]
+ 8000544:	f107 020c 	add.w	r2, r7, #12
+ 8000548:	4611      	mov	r1, r2
+ 800054a:	4618      	mov	r0, r3
+ 800054c:	f000 f866 	bl	800061c <_ZSt15allocate_sharedI3LedSaIS0_EIEESt10shared_ptrIT_ERKT0_DpOT1_>
+ 8000550:	f107 030c 	add.w	r3, r7, #12
+ 8000554:	4618      	mov	r0, r3
+ 8000556:	f000 f855 	bl	8000604 <_ZNSaI3LedED1Ev>
+    }
+ 800055a:	6878      	ldr	r0, [r7, #4]
+ 800055c:	3710      	adds	r7, #16
+ 800055e:	46bd      	mov	sp, r7
+ 8000560:	bd80      	pop	{r7, pc}
+ 8000562:	bf00      	nop
+
+08000564 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EED1Ev>:
+      explicit __shared_count(const __weak_count<_Lp>& __r);
+
+      // Does not throw if __r._M_get_use_count() == 0, caller must check.
+      explicit __shared_count(const __weak_count<_Lp>& __r, std::nothrow_t);
+
+      ~__shared_count() noexcept
+ 8000564:	b580      	push	{r7, lr}
+ 8000566:	b082      	sub	sp, #8
+ 8000568:	af00      	add	r7, sp, #0
+ 800056a:	6078      	str	r0, [r7, #4]
+      {
+	if (_M_pi != nullptr)
+ 800056c:	687b      	ldr	r3, [r7, #4]
+ 800056e:	681b      	ldr	r3, [r3, #0]
+ 8000570:	2b00      	cmp	r3, #0
+ 8000572:	d004      	beq.n	800057e <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EED1Ev+0x1a>
+	  _M_pi->_M_release();
+ 8000574:	687b      	ldr	r3, [r7, #4]
+ 8000576:	681b      	ldr	r3, [r3, #0]
+ 8000578:	4618      	mov	r0, r3
+ 800057a:	f7ff ff4d 	bl	8000418 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EE10_M_releaseEv>
+      }
+ 800057e:	687b      	ldr	r3, [r7, #4]
+ 8000580:	4618      	mov	r0, r3
+ 8000582:	3708      	adds	r7, #8
+ 8000584:	46bd      	mov	sp, r7
+ 8000586:	bd80      	pop	{r7, pc}
+
+08000588 <_ZNKSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EEptEv>:
+	_GLIBCXX_DEBUG_ASSERT(_M_ptr != 0);
+	return *_M_ptr;
+      }
+
+      _Tp*
+      operator->() const noexcept
+ 8000588:	b480      	push	{r7}
+ 800058a:	b083      	sub	sp, #12
+ 800058c:	af00      	add	r7, sp, #0
+ 800058e:	6078      	str	r0, [r7, #4]
+      {
+	_GLIBCXX_DEBUG_ASSERT(_M_ptr != 0);
+	return _M_ptr;
+ 8000590:	687b      	ldr	r3, [r7, #4]
+ 8000592:	681b      	ldr	r3, [r3, #0]
+      }
+ 8000594:	4618      	mov	r0, r3
+ 8000596:	370c      	adds	r7, #12
+ 8000598:	46bd      	mov	sp, r7
+ 800059a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800059e:	4770      	bx	lr
+
+080005a0 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EED1Ev>:
+    public:  
+      _Sp_counted_base() noexcept
+      : _M_use_count(1), _M_weak_count(1) { }
+      
+      virtual
+      ~_Sp_counted_base() noexcept
+ 80005a0:	b580      	push	{r7, lr}
+ 80005a2:	b082      	sub	sp, #8
+ 80005a4:	af00      	add	r7, sp, #0
+ 80005a6:	6078      	str	r0, [r7, #4]
+      { }
+ 80005a8:	4a07      	ldr	r2, [pc, #28]	; (80005c8 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EED1Ev+0x28>)
+ 80005aa:	687b      	ldr	r3, [r7, #4]
+ 80005ac:	601a      	str	r2, [r3, #0]
+ 80005ae:	2300      	movs	r3, #0
+ 80005b0:	2b00      	cmp	r3, #0
+ 80005b2:	d003      	beq.n	80005bc <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EED1Ev+0x1c>
+ 80005b4:	210c      	movs	r1, #12
+ 80005b6:	6878      	ldr	r0, [r7, #4]
+ 80005b8:	f000 fe76 	bl	80012a8 <_ZdlPvj>
+ 80005bc:	687b      	ldr	r3, [r7, #4]
+ 80005be:	4618      	mov	r0, r3
+ 80005c0:	3708      	adds	r7, #8
+ 80005c2:	46bd      	mov	sp, r7
+ 80005c4:	bd80      	pop	{r7, pc}
+ 80005c6:	bf00      	nop
+ 80005c8:	080018d8 	.word	0x080018d8
+
+080005cc <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EED0Ev>:
+    public:  
+      _Sp_counted_base() noexcept
+      : _M_use_count(1), _M_weak_count(1) { }
+      
+      virtual
+      ~_Sp_counted_base() noexcept
+ 80005cc:	b580      	push	{r7, lr}
+ 80005ce:	b082      	sub	sp, #8
+ 80005d0:	af00      	add	r7, sp, #0
+ 80005d2:	6078      	str	r0, [r7, #4]
+      { }
+ 80005d4:	6878      	ldr	r0, [r7, #4]
+ 80005d6:	f7ff ffe3 	bl	80005a0 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EED1Ev>
+ 80005da:	210c      	movs	r1, #12
+ 80005dc:	6878      	ldr	r0, [r7, #4]
+ 80005de:	f000 fe63 	bl	80012a8 <_ZdlPvj>
+ 80005e2:	687b      	ldr	r3, [r7, #4]
+ 80005e4:	4618      	mov	r0, r3
+ 80005e6:	3708      	adds	r7, #8
+ 80005e8:	46bd      	mov	sp, r7
+ 80005ea:	bd80      	pop	{r7, pc}
+
+080005ec <_ZNSaI3LedEC1Ev>:
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 2103. std::allocator propagate_on_container_move_assignment
+      typedef true_type propagate_on_container_move_assignment;
+#endif
+
+      allocator() throw() { }
+ 80005ec:	b580      	push	{r7, lr}
+ 80005ee:	b082      	sub	sp, #8
+ 80005f0:	af00      	add	r7, sp, #0
+ 80005f2:	6078      	str	r0, [r7, #4]
+ 80005f4:	6878      	ldr	r0, [r7, #4]
+ 80005f6:	f000 f82d 	bl	8000654 <_ZN9__gnu_cxx13new_allocatorI3LedEC1Ev>
+ 80005fa:	687b      	ldr	r3, [r7, #4]
+ 80005fc:	4618      	mov	r0, r3
+ 80005fe:	3708      	adds	r7, #8
+ 8000600:	46bd      	mov	sp, r7
+ 8000602:	bd80      	pop	{r7, pc}
+
+08000604 <_ZNSaI3LedED1Ev>:
+      : __allocator_base<_Tp>(__a) { }
+
+      template<typename _Tp1>
+        allocator(const allocator<_Tp1>&) throw() { }
+
+      ~allocator() throw() { }
+ 8000604:	b580      	push	{r7, lr}
+ 8000606:	b082      	sub	sp, #8
+ 8000608:	af00      	add	r7, sp, #0
+ 800060a:	6078      	str	r0, [r7, #4]
+ 800060c:	6878      	ldr	r0, [r7, #4]
+ 800060e:	f000 f82d 	bl	800066c <_ZN9__gnu_cxx13new_allocatorI3LedED1Ev>
+ 8000612:	687b      	ldr	r3, [r7, #4]
+ 8000614:	4618      	mov	r0, r3
+ 8000616:	3708      	adds	r7, #8
+ 8000618:	46bd      	mov	sp, r7
+ 800061a:	bd80      	pop	{r7, pc}
+
+0800061c <_ZSt15allocate_sharedI3LedSaIS0_EIEESt10shared_ptrIT_ERKT0_DpOT1_>:
+   *  A copy of @a __a will be used to allocate memory for the shared_ptr
+   *  and the new object.
+   */
+  template<typename _Tp, typename _Alloc, typename... _Args>
+    inline shared_ptr<_Tp>
+    allocate_shared(const _Alloc& __a, _Args&&... __args)
+ 800061c:	b580      	push	{r7, lr}
+ 800061e:	b084      	sub	sp, #16
+ 8000620:	af00      	add	r7, sp, #0
+ 8000622:	6078      	str	r0, [r7, #4]
+ 8000624:	6039      	str	r1, [r7, #0]
+    {
+      return shared_ptr<_Tp>(_Sp_make_shared_tag(), __a,
+			     std::forward<_Args>(__args)...);
+ 8000626:	683a      	ldr	r2, [r7, #0]
+ 8000628:	4619      	mov	r1, r3
+ 800062a:	6878      	ldr	r0, [r7, #4]
+ 800062c:	f000 f82a 	bl	8000684 <_ZNSt10shared_ptrI3LedEC1ISaIS0_EIEEESt19_Sp_make_shared_tagRKT_DpOT0_>
+    }
+ 8000630:	6878      	ldr	r0, [r7, #4]
+ 8000632:	3710      	adds	r7, #16
+ 8000634:	46bd      	mov	sp, r7
+ 8000636:	bd80      	pop	{r7, pc}
+
+08000638 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EEC1Ev>:
+
+  template<_Lock_policy _Lp>
+    class __shared_count
+    {
+    public:
+      constexpr __shared_count() noexcept : _M_pi(0)
+ 8000638:	b480      	push	{r7}
+ 800063a:	b083      	sub	sp, #12
+ 800063c:	af00      	add	r7, sp, #0
+ 800063e:	6078      	str	r0, [r7, #4]
+ 8000640:	687b      	ldr	r3, [r7, #4]
+ 8000642:	2200      	movs	r2, #0
+ 8000644:	601a      	str	r2, [r3, #0]
+      { }
+ 8000646:	687b      	ldr	r3, [r7, #4]
+ 8000648:	4618      	mov	r0, r3
+ 800064a:	370c      	adds	r7, #12
+ 800064c:	46bd      	mov	sp, r7
+ 800064e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000652:	4770      	bx	lr
+
+08000654 <_ZN9__gnu_cxx13new_allocatorI3LedEC1Ev>:
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 2103. propagate_on_container_move_assignment
+      typedef std::true_type propagate_on_container_move_assignment;
+#endif
+
+      new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+ 8000654:	b480      	push	{r7}
+ 8000656:	b083      	sub	sp, #12
+ 8000658:	af00      	add	r7, sp, #0
+ 800065a:	6078      	str	r0, [r7, #4]
+ 800065c:	687b      	ldr	r3, [r7, #4]
+ 800065e:	4618      	mov	r0, r3
+ 8000660:	370c      	adds	r7, #12
+ 8000662:	46bd      	mov	sp, r7
+ 8000664:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000668:	4770      	bx	lr
+ 800066a:	bf00      	nop
+
+0800066c <_ZN9__gnu_cxx13new_allocatorI3LedED1Ev>:
+      new_allocator(const new_allocator&) _GLIBCXX_USE_NOEXCEPT { }
+
+      template<typename _Tp1>
+        new_allocator(const new_allocator<_Tp1>&) _GLIBCXX_USE_NOEXCEPT { }
+
+      ~new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+ 800066c:	b480      	push	{r7}
+ 800066e:	b083      	sub	sp, #12
+ 8000670:	af00      	add	r7, sp, #0
+ 8000672:	6078      	str	r0, [r7, #4]
+ 8000674:	687b      	ldr	r3, [r7, #4]
+ 8000676:	4618      	mov	r0, r3
+ 8000678:	370c      	adds	r7, #12
+ 800067a:	46bd      	mov	sp, r7
+ 800067c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000680:	4770      	bx	lr
+ 8000682:	bf00      	nop
+
+08000684 <_ZNSt10shared_ptrI3LedEC1ISaIS0_EIEEESt19_Sp_make_shared_tagRKT_DpOT0_>:
+	}
+
+    private:
+      // This constructor is non-standard, it is used by allocate_shared.
+      template<typename _Alloc, typename... _Args>
+	shared_ptr(_Sp_make_shared_tag __tag, const _Alloc& __a,
+ 8000684:	b590      	push	{r4, r7, lr}
+ 8000686:	b085      	sub	sp, #20
+ 8000688:	af00      	add	r7, sp, #0
+ 800068a:	60f8      	str	r0, [r7, #12]
+ 800068c:	7239      	strb	r1, [r7, #8]
+ 800068e:	607a      	str	r2, [r7, #4]
+		   _Args&&... __args)
+	: __shared_ptr<_Tp>(__tag, __a, std::forward<_Args>(__args)...)
+ 8000690:	68fb      	ldr	r3, [r7, #12]
+ 8000692:	687a      	ldr	r2, [r7, #4]
+ 8000694:	4621      	mov	r1, r4
+ 8000696:	4618      	mov	r0, r3
+ 8000698:	f000 f83a 	bl	8000710 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EEC1ISaIS0_EIEEESt19_Sp_make_shared_tagRKT_DpOT0_>
+	{ }
+ 800069c:	68fb      	ldr	r3, [r7, #12]
+ 800069e:	4618      	mov	r0, r3
+ 80006a0:	3714      	adds	r7, #20
+ 80006a2:	46bd      	mov	sp, r7
+ 80006a4:	bd90      	pop	{r4, r7, pc}
+ 80006a6:	bf00      	nop
+
+080006a8 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EE7_M_swapERS2_>:
+	  }
+	return *this;
+      }
+
+      void
+      _M_swap(__shared_count& __r) noexcept
+ 80006a8:	b480      	push	{r7}
+ 80006aa:	b085      	sub	sp, #20
+ 80006ac:	af00      	add	r7, sp, #0
+ 80006ae:	6078      	str	r0, [r7, #4]
+ 80006b0:	6039      	str	r1, [r7, #0]
+      {
+	_Sp_counted_base<_Lp>* __tmp = __r._M_pi;
+ 80006b2:	683b      	ldr	r3, [r7, #0]
+ 80006b4:	681b      	ldr	r3, [r3, #0]
+ 80006b6:	60fb      	str	r3, [r7, #12]
+	__r._M_pi = _M_pi;
+ 80006b8:	687b      	ldr	r3, [r7, #4]
+ 80006ba:	681a      	ldr	r2, [r3, #0]
+ 80006bc:	683b      	ldr	r3, [r7, #0]
+ 80006be:	601a      	str	r2, [r3, #0]
+	_M_pi = __tmp;
+ 80006c0:	687b      	ldr	r3, [r7, #4]
+ 80006c2:	68fa      	ldr	r2, [r7, #12]
+ 80006c4:	601a      	str	r2, [r3, #0]
+      }
+ 80006c6:	bf00      	nop
+ 80006c8:	3714      	adds	r7, #20
+ 80006ca:	46bd      	mov	sp, r7
+ 80006cc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80006d0:	4770      	bx	lr
+ 80006d2:	bf00      	nop
+
+080006d4 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EED1Ev>:
+	  _M_ptr = static_cast<_Tp*>(__p);
+	  __enable_shared_from_this_helper(_M_refcount, _M_ptr, _M_ptr);
+	}
+#else
+      template<typename _Alloc>
+        struct _Deleter
+ 80006d4:	b580      	push	{r7, lr}
+ 80006d6:	b082      	sub	sp, #8
+ 80006d8:	af00      	add	r7, sp, #0
+ 80006da:	6078      	str	r0, [r7, #4]
+ 80006dc:	687b      	ldr	r3, [r7, #4]
+ 80006de:	4618      	mov	r0, r3
+ 80006e0:	f7ff ff90 	bl	8000604 <_ZNSaI3LedED1Ev>
+ 80006e4:	687b      	ldr	r3, [r7, #4]
+ 80006e6:	4618      	mov	r0, r3
+ 80006e8:	3708      	adds	r7, #8
+ 80006ea:	46bd      	mov	sp, r7
+ 80006ec:	bd80      	pop	{r7, pc}
+ 80006ee:	bf00      	nop
+
+080006f0 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEC1ERKS6_>:
+ 80006f0:	b580      	push	{r7, lr}
+ 80006f2:	b082      	sub	sp, #8
+ 80006f4:	af00      	add	r7, sp, #0
+ 80006f6:	6078      	str	r0, [r7, #4]
+ 80006f8:	6039      	str	r1, [r7, #0]
+ 80006fa:	687b      	ldr	r3, [r7, #4]
+ 80006fc:	683a      	ldr	r2, [r7, #0]
+ 80006fe:	4611      	mov	r1, r2
+ 8000700:	4618      	mov	r0, r3
+ 8000702:	f000 f87f 	bl	8000804 <_ZNSaI3LedEC1ERKS0_>
+ 8000706:	687b      	ldr	r3, [r7, #4]
+ 8000708:	4618      	mov	r0, r3
+ 800070a:	3708      	adds	r7, #8
+ 800070c:	46bd      	mov	sp, r7
+ 800070e:	bd80      	pop	{r7, pc}
+
+08000710 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EEC1ISaIS0_EIEEESt19_Sp_make_shared_tagRKT_DpOT0_>:
+          }
+          _Alloc _M_alloc;
+        };
+
+      template<typename _Alloc, typename... _Args>
+	__shared_ptr(_Sp_make_shared_tag __tag, const _Alloc& __a,
+ 8000710:	b580      	push	{r7, lr}
+ 8000712:	b08c      	sub	sp, #48	; 0x30
+ 8000714:	af00      	add	r7, sp, #0
+ 8000716:	60f8      	str	r0, [r7, #12]
+ 8000718:	7239      	strb	r1, [r7, #8]
+ 800071a:	607a      	str	r2, [r7, #4]
+		     _Args&&... __args)
+	: _M_ptr(), _M_refcount()
+ 800071c:	68fb      	ldr	r3, [r7, #12]
+ 800071e:	2200      	movs	r2, #0
+ 8000720:	601a      	str	r2, [r3, #0]
+ 8000722:	68fb      	ldr	r3, [r7, #12]
+ 8000724:	3304      	adds	r3, #4
+ 8000726:	4618      	mov	r0, r3
+ 8000728:	f7ff ff86 	bl	8000638 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EEC1Ev>
+	{
+	  typedef typename allocator_traits<_Alloc>::template
+	    rebind_traits<typename std::remove_cv<_Tp>::type> __traits;
+	  _Deleter<typename __traits::allocator_type> __del = { __a };
+ 800072c:	f107 0320 	add.w	r3, r7, #32
+ 8000730:	6879      	ldr	r1, [r7, #4]
+ 8000732:	4618      	mov	r0, r3
+ 8000734:	f000 f866 	bl	8000804 <_ZNSaI3LedEC1ERKS0_>
+	  auto __guard = std::__allocate_guarded(__del._M_alloc);
+ 8000738:	f107 0318 	add.w	r3, r7, #24
+ 800073c:	f107 0220 	add.w	r2, r7, #32
+ 8000740:	4611      	mov	r1, r2
+ 8000742:	4618      	mov	r0, r3
+ 8000744:	f000 f86c 	bl	8000820 <_ZSt18__allocate_guardedISaI3LedEESt15__allocated_ptrIT_ERS3_>
+	  auto __ptr = __guard.get();
+ 8000748:	f107 0318 	add.w	r3, r7, #24
+ 800074c:	4618      	mov	r0, r3
+ 800074e:	f000 f891 	bl	8000874 <_ZNSt15__allocated_ptrISaI3LedEE3getEv>
+ 8000752:	62f8      	str	r0, [r7, #44]	; 0x2c
+	  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+	  // 2070. allocate_shared should use allocator_traits<A>::construct
+	  __traits::construct(__del._M_alloc, __ptr,
+ 8000754:	f107 0320 	add.w	r3, r7, #32
+ 8000758:	6af9      	ldr	r1, [r7, #44]	; 0x2c
+ 800075a:	4618      	mov	r0, r3
+ 800075c:	f000 f89a 	bl	8000894 <_ZNSt16allocator_traitsISaI3LedEE9constructIS0_IEEEvRS1_PT_DpOT0_>
+			      std::forward<_Args>(__args)...);
+	  __guard = nullptr;
+ 8000760:	f107 0318 	add.w	r3, r7, #24
+ 8000764:	2100      	movs	r1, #0
+ 8000766:	4618      	mov	r0, r3
+ 8000768:	f000 f8a2 	bl	80008b0 <_ZNSt15__allocated_ptrISaI3LedEEaSEDn>
+	  __shared_count<_Lp> __count(__ptr, __del, __del._M_alloc);
+ 800076c:	f107 0220 	add.w	r2, r7, #32
+ 8000770:	f107 0324 	add.w	r3, r7, #36	; 0x24
+ 8000774:	4611      	mov	r1, r2
+ 8000776:	4618      	mov	r0, r3
+ 8000778:	f7ff ffba 	bl	80006f0 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEC1ERKS6_>
+ 800077c:	f107 0220 	add.w	r2, r7, #32
+ 8000780:	f107 0328 	add.w	r3, r7, #40	; 0x28
+ 8000784:	4611      	mov	r1, r2
+ 8000786:	4618      	mov	r0, r3
+ 8000788:	f000 f83c 	bl	8000804 <_ZNSaI3LedEC1ERKS0_>
+ 800078c:	f107 0328 	add.w	r3, r7, #40	; 0x28
+ 8000790:	f107 0224 	add.w	r2, r7, #36	; 0x24
+ 8000794:	f107 0014 	add.w	r0, r7, #20
+ 8000798:	6af9      	ldr	r1, [r7, #44]	; 0x2c
+ 800079a:	f000 f8c1 	bl	8000920 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EEC1IP3LedNSt12__shared_ptrIS4_LS1_0EE8_DeleterISaIS4_EEES9_EET_T0_T1_>
+ 800079e:	f107 0328 	add.w	r3, r7, #40	; 0x28
+ 80007a2:	4618      	mov	r0, r3
+ 80007a4:	f7ff ff2e 	bl	8000604 <_ZNSaI3LedED1Ev>
+ 80007a8:	f107 0324 	add.w	r3, r7, #36	; 0x24
+ 80007ac:	4618      	mov	r0, r3
+ 80007ae:	f7ff ff91 	bl	80006d4 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EED1Ev>
+	  _M_refcount._M_swap(__count);
+ 80007b2:	68fb      	ldr	r3, [r7, #12]
+ 80007b4:	3304      	adds	r3, #4
+ 80007b6:	f107 0214 	add.w	r2, r7, #20
+ 80007ba:	4611      	mov	r1, r2
+ 80007bc:	4618      	mov	r0, r3
+ 80007be:	f7ff ff73 	bl	80006a8 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EE7_M_swapERS2_>
+	  _M_ptr = __ptr;
+ 80007c2:	68fb      	ldr	r3, [r7, #12]
+ 80007c4:	6afa      	ldr	r2, [r7, #44]	; 0x2c
+ 80007c6:	601a      	str	r2, [r3, #0]
+	  __enable_shared_from_this_helper(_M_refcount, _M_ptr, _M_ptr);
+ 80007c8:	68fb      	ldr	r3, [r7, #12]
+ 80007ca:	1d18      	adds	r0, r3, #4
+ 80007cc:	68fb      	ldr	r3, [r7, #12]
+ 80007ce:	6819      	ldr	r1, [r3, #0]
+ 80007d0:	68fb      	ldr	r3, [r7, #12]
+ 80007d2:	681b      	ldr	r3, [r3, #0]
+ 80007d4:	461a      	mov	r2, r3
+ 80007d6:	f000 f8fb 	bl	80009d0 <_ZSt32__enable_shared_from_this_helperILN9__gnu_cxx12_Lock_policyE0EEvRKSt14__shared_countIXT_EEz>
+	  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+	  // 2070. allocate_shared should use allocator_traits<A>::construct
+	  __traits::construct(__del._M_alloc, __ptr,
+			      std::forward<_Args>(__args)...);
+	  __guard = nullptr;
+	  __shared_count<_Lp> __count(__ptr, __del, __del._M_alloc);
+ 80007da:	f107 0314 	add.w	r3, r7, #20
+ 80007de:	4618      	mov	r0, r3
+ 80007e0:	f7ff fec0 	bl	8000564 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EED1Ev>
+	: _M_ptr(), _M_refcount()
+	{
+	  typedef typename allocator_traits<_Alloc>::template
+	    rebind_traits<typename std::remove_cv<_Tp>::type> __traits;
+	  _Deleter<typename __traits::allocator_type> __del = { __a };
+	  auto __guard = std::__allocate_guarded(__del._M_alloc);
+ 80007e4:	f107 0318 	add.w	r3, r7, #24
+ 80007e8:	4618      	mov	r0, r3
+ 80007ea:	f000 f82d 	bl	8000848 <_ZNSt15__allocated_ptrISaI3LedEED1Ev>
+		     _Args&&... __args)
+	: _M_ptr(), _M_refcount()
+	{
+	  typedef typename allocator_traits<_Alloc>::template
+	    rebind_traits<typename std::remove_cv<_Tp>::type> __traits;
+	  _Deleter<typename __traits::allocator_type> __del = { __a };
+ 80007ee:	f107 0320 	add.w	r3, r7, #32
+ 80007f2:	4618      	mov	r0, r3
+ 80007f4:	f7ff ff6e 	bl	80006d4 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EED1Ev>
+	  __guard = nullptr;
+	  __shared_count<_Lp> __count(__ptr, __del, __del._M_alloc);
+	  _M_refcount._M_swap(__count);
+	  _M_ptr = __ptr;
+	  __enable_shared_from_this_helper(_M_refcount, _M_ptr, _M_ptr);
+	}
+ 80007f8:	68fb      	ldr	r3, [r7, #12]
+ 80007fa:	4618      	mov	r0, r3
+ 80007fc:	3730      	adds	r7, #48	; 0x30
+ 80007fe:	46bd      	mov	sp, r7
+ 8000800:	bd80      	pop	{r7, pc}
+ 8000802:	bf00      	nop
+
+08000804 <_ZNSaI3LedEC1ERKS0_>:
+      typedef true_type propagate_on_container_move_assignment;
+#endif
+
+      allocator() throw() { }
+
+      allocator(const allocator& __a) throw()
+ 8000804:	b580      	push	{r7, lr}
+ 8000806:	b082      	sub	sp, #8
+ 8000808:	af00      	add	r7, sp, #0
+ 800080a:	6078      	str	r0, [r7, #4]
+ 800080c:	6039      	str	r1, [r7, #0]
+      : __allocator_base<_Tp>(__a) { }
+ 800080e:	6839      	ldr	r1, [r7, #0]
+ 8000810:	6878      	ldr	r0, [r7, #4]
+ 8000812:	f000 f8e7 	bl	80009e4 <_ZN9__gnu_cxx13new_allocatorI3LedEC1ERKS2_>
+ 8000816:	687b      	ldr	r3, [r7, #4]
+ 8000818:	4618      	mov	r0, r3
+ 800081a:	3708      	adds	r7, #8
+ 800081c:	46bd      	mov	sp, r7
+ 800081e:	bd80      	pop	{r7, pc}
+
+08000820 <_ZSt18__allocate_guardedISaI3LedEESt15__allocated_ptrIT_ERS3_>:
+    };
+
+  /// Allocate space for a single object using __a
+  template<typename _Alloc>
+    __allocated_ptr<_Alloc>
+    __allocate_guarded(_Alloc& __a)
+ 8000820:	b580      	push	{r7, lr}
+ 8000822:	b082      	sub	sp, #8
+ 8000824:	af00      	add	r7, sp, #0
+ 8000826:	6078      	str	r0, [r7, #4]
+ 8000828:	6039      	str	r1, [r7, #0]
+    {
+      return { __a, std::allocator_traits<_Alloc>::allocate(__a, 1) };
+ 800082a:	2101      	movs	r1, #1
+ 800082c:	6838      	ldr	r0, [r7, #0]
+ 800082e:	f000 f8e5 	bl	80009fc <_ZNSt16allocator_traitsISaI3LedEE8allocateERS1_j>
+ 8000832:	4603      	mov	r3, r0
+ 8000834:	461a      	mov	r2, r3
+ 8000836:	6839      	ldr	r1, [r7, #0]
+ 8000838:	6878      	ldr	r0, [r7, #4]
+ 800083a:	f000 f8ef 	bl	8000a1c <_ZNSt15__allocated_ptrISaI3LedEEC1ERS1_PS0_>
+    }
+ 800083e:	6878      	ldr	r0, [r7, #4]
+ 8000840:	3708      	adds	r7, #8
+ 8000842:	46bd      	mov	sp, r7
+ 8000844:	bd80      	pop	{r7, pc}
+ 8000846:	bf00      	nop
+
+08000848 <_ZNSt15__allocated_ptrISaI3LedEED1Ev>:
+      __allocated_ptr(__allocated_ptr&& __gd) noexcept
+      : _M_alloc(__gd._M_alloc), _M_ptr(__gd._M_ptr)
+      { __gd._M_ptr = nullptr; }
+
+      /// Deallocate the owned pointer
+      ~__allocated_ptr()
+ 8000848:	b580      	push	{r7, lr}
+ 800084a:	b082      	sub	sp, #8
+ 800084c:	af00      	add	r7, sp, #0
+ 800084e:	6078      	str	r0, [r7, #4]
+      {
+	if (_M_ptr != nullptr)
+ 8000850:	687b      	ldr	r3, [r7, #4]
+ 8000852:	685b      	ldr	r3, [r3, #4]
+ 8000854:	2b00      	cmp	r3, #0
+ 8000856:	d007      	beq.n	8000868 <_ZNSt15__allocated_ptrISaI3LedEED1Ev+0x20>
+	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
+ 8000858:	687b      	ldr	r3, [r7, #4]
+ 800085a:	6818      	ldr	r0, [r3, #0]
+ 800085c:	687b      	ldr	r3, [r7, #4]
+ 800085e:	685b      	ldr	r3, [r3, #4]
+ 8000860:	2201      	movs	r2, #1
+ 8000862:	4619      	mov	r1, r3
+ 8000864:	f000 f8ee 	bl	8000a44 <_ZNSt16allocator_traitsISaI3LedEE10deallocateERS1_PS0_j>
+      }
+ 8000868:	687b      	ldr	r3, [r7, #4]
+ 800086a:	4618      	mov	r0, r3
+ 800086c:	3708      	adds	r7, #8
+ 800086e:	46bd      	mov	sp, r7
+ 8000870:	bd80      	pop	{r7, pc}
+ 8000872:	bf00      	nop
+
+08000874 <_ZNSt15__allocated_ptrISaI3LedEE3getEv>:
+	_M_ptr = nullptr;
+	return *this;
+      }
+
+      /// Get the address that the owned pointer refers to.
+      value_type* get() { return _S_raw_ptr(_M_ptr); }
+ 8000874:	b580      	push	{r7, lr}
+ 8000876:	b082      	sub	sp, #8
+ 8000878:	af00      	add	r7, sp, #0
+ 800087a:	6078      	str	r0, [r7, #4]
+ 800087c:	687b      	ldr	r3, [r7, #4]
+ 800087e:	685b      	ldr	r3, [r3, #4]
+ 8000880:	4619      	mov	r1, r3
+ 8000882:	6878      	ldr	r0, [r7, #4]
+ 8000884:	f000 f8ee 	bl	8000a64 <_ZNSt15__allocated_ptrISaI3LedEE10_S_raw_ptrEPS0_>
+ 8000888:	4603      	mov	r3, r0
+ 800088a:	4618      	mov	r0, r3
+ 800088c:	3708      	adds	r7, #8
+ 800088e:	46bd      	mov	sp, r7
+ 8000890:	bd80      	pop	{r7, pc}
+ 8000892:	bf00      	nop
+
+08000894 <_ZNSt16allocator_traitsISaI3LedEE9constructIS0_IEEEvRS1_PT_DpOT0_>:
+       *
+       *  Calls <tt> __a.construct(__p, std::forward<Args>(__args)...) </tt>
+      */
+      template<typename _Up, typename... _Args>
+	static void
+	construct(allocator_type& __a, _Up* __p, _Args&&... __args)
+ 8000894:	b580      	push	{r7, lr}
+ 8000896:	b082      	sub	sp, #8
+ 8000898:	af00      	add	r7, sp, #0
+ 800089a:	6078      	str	r0, [r7, #4]
+ 800089c:	6039      	str	r1, [r7, #0]
+	{ __a.construct(__p, std::forward<_Args>(__args)...); }
+ 800089e:	6839      	ldr	r1, [r7, #0]
+ 80008a0:	6878      	ldr	r0, [r7, #4]
+ 80008a2:	f000 f90d 	bl	8000ac0 <_ZN9__gnu_cxx13new_allocatorI3LedE9constructIS1_IEEEvPT_DpOT0_>
+ 80008a6:	bf00      	nop
+ 80008a8:	3708      	adds	r7, #8
+ 80008aa:	46bd      	mov	sp, r7
+ 80008ac:	bd80      	pop	{r7, pc}
+ 80008ae:	bf00      	nop
+
+080008b0 <_ZNSt15__allocated_ptrISaI3LedEEaSEDn>:
+	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
+      }
+
+      /// Release ownership of the owned pointer
+      __allocated_ptr&
+      operator=(std::nullptr_t) noexcept
+ 80008b0:	b480      	push	{r7}
+ 80008b2:	b083      	sub	sp, #12
+ 80008b4:	af00      	add	r7, sp, #0
+ 80008b6:	6078      	str	r0, [r7, #4]
+ 80008b8:	6039      	str	r1, [r7, #0]
+      {
+	_M_ptr = nullptr;
+ 80008ba:	687b      	ldr	r3, [r7, #4]
+ 80008bc:	2200      	movs	r2, #0
+ 80008be:	605a      	str	r2, [r3, #4]
+	return *this;
+ 80008c0:	687b      	ldr	r3, [r7, #4]
+      }
+ 80008c2:	4618      	mov	r0, r3
+ 80008c4:	370c      	adds	r7, #12
+ 80008c6:	46bd      	mov	sp, r7
+ 80008c8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80008cc:	4770      	bx	lr
+ 80008ce:	bf00      	nop
+
+080008d0 <_ZSt4moveIRNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEEEONSt16remove_referenceIT_E4typeEOSA_>:
+   *  @param  __t  A thing of arbitrary type.
+   *  @return The parameter cast to an rvalue-reference to allow moving it.
+  */
+  template<typename _Tp>
+    constexpr typename std::remove_reference<_Tp>::type&&
+    move(_Tp&& __t) noexcept
+ 80008d0:	b480      	push	{r7}
+ 80008d2:	b083      	sub	sp, #12
+ 80008d4:	af00      	add	r7, sp, #0
+ 80008d6:	6078      	str	r0, [r7, #4]
+    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
+ 80008d8:	687b      	ldr	r3, [r7, #4]
+ 80008da:	4618      	mov	r0, r3
+ 80008dc:	370c      	adds	r7, #12
+ 80008de:	46bd      	mov	sp, r7
+ 80008e0:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80008e4:	4770      	bx	lr
+ 80008e6:	bf00      	nop
+
+080008e8 <_ZSt4moveIRSaI3LedEEONSt16remove_referenceIT_E4typeEOS4_>:
+   *  @param  __t  A thing of arbitrary type.
+   *  @return The parameter cast to an rvalue-reference to allow moving it.
+  */
+  template<typename _Tp>
+    constexpr typename std::remove_reference<_Tp>::type&&
+    move(_Tp&& __t) noexcept
+ 80008e8:	b480      	push	{r7}
+ 80008ea:	b083      	sub	sp, #12
+ 80008ec:	af00      	add	r7, sp, #0
+ 80008ee:	6078      	str	r0, [r7, #4]
+    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
+ 80008f0:	687b      	ldr	r3, [r7, #4]
+ 80008f2:	4618      	mov	r0, r3
+ 80008f4:	370c      	adds	r7, #12
+ 80008f6:	46bd      	mov	sp, r7
+ 80008f8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80008fc:	4770      	bx	lr
+ 80008fe:	bf00      	nop
+
+08000900 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEC1EOS6_>:
+	  _M_ptr = static_cast<_Tp*>(__p);
+	  __enable_shared_from_this_helper(_M_refcount, _M_ptr, _M_ptr);
+	}
+#else
+      template<typename _Alloc>
+        struct _Deleter
+ 8000900:	b580      	push	{r7, lr}
+ 8000902:	b082      	sub	sp, #8
+ 8000904:	af00      	add	r7, sp, #0
+ 8000906:	6078      	str	r0, [r7, #4]
+ 8000908:	6039      	str	r1, [r7, #0]
+ 800090a:	687b      	ldr	r3, [r7, #4]
+ 800090c:	683a      	ldr	r2, [r7, #0]
+ 800090e:	4611      	mov	r1, r2
+ 8000910:	4618      	mov	r0, r3
+ 8000912:	f7ff ff77 	bl	8000804 <_ZNSaI3LedEC1ERKS0_>
+ 8000916:	687b      	ldr	r3, [r7, #4]
+ 8000918:	4618      	mov	r0, r3
+ 800091a:	3708      	adds	r7, #8
+ 800091c:	46bd      	mov	sp, r7
+ 800091e:	bd80      	pop	{r7, pc}
+
+08000920 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EEC1IP3LedNSt12__shared_ptrIS4_LS1_0EE8_DeleterISaIS4_EEES9_EET_T0_T1_>:
+	__shared_count(_Ptr __p, _Deleter __d)
+	: __shared_count(__p, std::move(__d), allocator<void>())
+	{ }
+
+      template<typename _Ptr, typename _Deleter, typename _Alloc>
+	__shared_count(_Ptr __p, _Deleter __d, _Alloc __a) : _M_pi(0)
+ 8000920:	b5b0      	push	{r4, r5, r7, lr}
+ 8000922:	b08a      	sub	sp, #40	; 0x28
+ 8000924:	af00      	add	r7, sp, #0
+ 8000926:	60f8      	str	r0, [r7, #12]
+ 8000928:	60b9      	str	r1, [r7, #8]
+ 800092a:	607a      	str	r2, [r7, #4]
+ 800092c:	603b      	str	r3, [r7, #0]
+ 800092e:	68fb      	ldr	r3, [r7, #12]
+ 8000930:	2200      	movs	r2, #0
+ 8000932:	601a      	str	r2, [r3, #0]
+	{
+	  typedef _Sp_counted_deleter<_Ptr, _Deleter, _Alloc, _Lp> _Sp_cd_type;
+	  __try
+	    {
+	      typename _Sp_cd_type::__allocator_type __a2(__a);
+ 8000934:	f107 031c 	add.w	r3, r7, #28
+ 8000938:	6839      	ldr	r1, [r7, #0]
+ 800093a:	4618      	mov	r0, r3
+ 800093c:	f000 f8d6 	bl	8000aec <_ZNSaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEEC1IS0_EERKSaIT_E>
+	      auto __guard = std::__allocate_guarded(__a2);
+ 8000940:	f107 0314 	add.w	r3, r7, #20
+ 8000944:	f107 021c 	add.w	r2, r7, #28
+ 8000948:	4611      	mov	r1, r2
+ 800094a:	4618      	mov	r0, r3
+ 800094c:	f000 f8e8 	bl	8000b20 <_ZSt18__allocate_guardedISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEESt15__allocated_ptrIT_ERSD_>
+	      _Sp_cd_type* __mem = __guard.get();
+ 8000950:	f107 0314 	add.w	r3, r7, #20
+ 8000954:	4618      	mov	r0, r3
+ 8000956:	f000 f90d 	bl	8000b74 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE3getEv>
+ 800095a:	6278      	str	r0, [r7, #36]	; 0x24
+	      ::new (__mem) _Sp_cd_type(__p, std::move(__d), std::move(__a));
+ 800095c:	6878      	ldr	r0, [r7, #4]
+ 800095e:	f7ff ffb7 	bl	80008d0 <_ZSt4moveIRNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEEEONSt16remove_referenceIT_E4typeEOSA_>
+ 8000962:	4602      	mov	r2, r0
+ 8000964:	f107 0320 	add.w	r3, r7, #32
+ 8000968:	4611      	mov	r1, r2
+ 800096a:	4618      	mov	r0, r3
+ 800096c:	f7ff ffc8 	bl	8000900 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEC1EOS6_>
+ 8000970:	f107 0420 	add.w	r4, r7, #32
+ 8000974:	6838      	ldr	r0, [r7, #0]
+ 8000976:	f7ff ffb7 	bl	80008e8 <_ZSt4moveIRSaI3LedEEONSt16remove_referenceIT_E4typeEOS4_>
+ 800097a:	4605      	mov	r5, r0
+ 800097c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 800097e:	4619      	mov	r1, r3
+ 8000980:	2014      	movs	r0, #20
+ 8000982:	f7ff fd3d 	bl	8000400 <_ZnwjPv>
+ 8000986:	2800      	cmp	r0, #0
+ 8000988:	d004      	beq.n	8000994 <_ZNSt14__shared_countILN9__gnu_cxx12_Lock_policyE0EEC1IP3LedNSt12__shared_ptrIS4_LS1_0EE8_DeleterISaIS4_EEES9_EET_T0_T1_+0x74>
+ 800098a:	462b      	mov	r3, r5
+ 800098c:	4622      	mov	r2, r4
+ 800098e:	68b9      	ldr	r1, [r7, #8]
+ 8000990:	f000 f92c 	bl	8000bec <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEC1ES1_S8_RKS7_>
+ 8000994:	f107 0320 	add.w	r3, r7, #32
+ 8000998:	4618      	mov	r0, r3
+ 800099a:	f7ff fe9b 	bl	80006d4 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EED1Ev>
+	      _M_pi = __mem;
+ 800099e:	68fb      	ldr	r3, [r7, #12]
+ 80009a0:	6a7a      	ldr	r2, [r7, #36]	; 0x24
+ 80009a2:	601a      	str	r2, [r3, #0]
+	      __guard = nullptr;
+ 80009a4:	f107 0314 	add.w	r3, r7, #20
+ 80009a8:	2100      	movs	r1, #0
+ 80009aa:	4618      	mov	r0, r3
+ 80009ac:	f000 f948 	bl	8000c40 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEEaSEDn>
+	{
+	  typedef _Sp_counted_deleter<_Ptr, _Deleter, _Alloc, _Lp> _Sp_cd_type;
+	  __try
+	    {
+	      typename _Sp_cd_type::__allocator_type __a2(__a);
+	      auto __guard = std::__allocate_guarded(__a2);
+ 80009b0:	f107 0314 	add.w	r3, r7, #20
+ 80009b4:	4618      	mov	r0, r3
+ 80009b6:	f000 f8c7 	bl	8000b48 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEED1Ev>
+	__shared_count(_Ptr __p, _Deleter __d, _Alloc __a) : _M_pi(0)
+	{
+	  typedef _Sp_counted_deleter<_Ptr, _Deleter, _Alloc, _Lp> _Sp_cd_type;
+	  __try
+	    {
+	      typename _Sp_cd_type::__allocator_type __a2(__a);
+ 80009ba:	f107 031c 	add.w	r3, r7, #28
+ 80009be:	4618      	mov	r0, r3
+ 80009c0:	f000 f8a2 	bl	8000b08 <_ZNSaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEED1Ev>
+	  __catch(...)
+	    {
+	      __d(__p); // Call _Deleter on __p.
+	      __throw_exception_again;
+	    }
+	}
+ 80009c4:	68fb      	ldr	r3, [r7, #12]
+ 80009c6:	4618      	mov	r0, r3
+ 80009c8:	3728      	adds	r7, #40	; 0x28
+ 80009ca:	46bd      	mov	sp, r7
+ 80009cc:	bdb0      	pop	{r4, r5, r7, pc}
+ 80009ce:	bf00      	nop
+
+080009d0 <_ZSt32__enable_shared_from_this_helperILN9__gnu_cxx12_Lock_policyE0EEvRKSt14__shared_countIXT_EEz>:
+				     const enable_shared_from_this<_Tp1>*,
+				     const _Tp2*) noexcept;
+
+  template<_Lock_policy _Lp>
+    inline void
+    __enable_shared_from_this_helper(const __shared_count<_Lp>&, ...) noexcept
+ 80009d0:	b40f      	push	{r0, r1, r2, r3}
+ 80009d2:	b480      	push	{r7}
+ 80009d4:	af00      	add	r7, sp, #0
+    { }
+ 80009d6:	bf00      	nop
+ 80009d8:	46bd      	mov	sp, r7
+ 80009da:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80009de:	b004      	add	sp, #16
+ 80009e0:	4770      	bx	lr
+ 80009e2:	bf00      	nop
+
+080009e4 <_ZN9__gnu_cxx13new_allocatorI3LedEC1ERKS2_>:
+      typedef std::true_type propagate_on_container_move_assignment;
+#endif
+
+      new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+
+      new_allocator(const new_allocator&) _GLIBCXX_USE_NOEXCEPT { }
+ 80009e4:	b480      	push	{r7}
+ 80009e6:	b083      	sub	sp, #12
+ 80009e8:	af00      	add	r7, sp, #0
+ 80009ea:	6078      	str	r0, [r7, #4]
+ 80009ec:	6039      	str	r1, [r7, #0]
+ 80009ee:	687b      	ldr	r3, [r7, #4]
+ 80009f0:	4618      	mov	r0, r3
+ 80009f2:	370c      	adds	r7, #12
+ 80009f4:	46bd      	mov	sp, r7
+ 80009f6:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80009fa:	4770      	bx	lr
+
+080009fc <_ZNSt16allocator_traitsISaI3LedEE8allocateERS1_j>:
+       *  @param  __n  The number of objects to allocate space for.
+       *
+       *  Calls @c a.allocate(n)
+      */
+      static pointer
+      allocate(allocator_type& __a, size_type __n)
+ 80009fc:	b580      	push	{r7, lr}
+ 80009fe:	b082      	sub	sp, #8
+ 8000a00:	af00      	add	r7, sp, #0
+ 8000a02:	6078      	str	r0, [r7, #4]
+ 8000a04:	6039      	str	r1, [r7, #0]
+      { return __a.allocate(__n); }
+ 8000a06:	2200      	movs	r2, #0
+ 8000a08:	6839      	ldr	r1, [r7, #0]
+ 8000a0a:	6878      	ldr	r0, [r7, #4]
+ 8000a0c:	f000 f948 	bl	8000ca0 <_ZN9__gnu_cxx13new_allocatorI3LedE8allocateEjPKv>
+ 8000a10:	4603      	mov	r3, r0
+ 8000a12:	4618      	mov	r0, r3
+ 8000a14:	3708      	adds	r7, #8
+ 8000a16:	46bd      	mov	sp, r7
+ 8000a18:	bd80      	pop	{r7, pc}
+ 8000a1a:	bf00      	nop
+
+08000a1c <_ZNSt15__allocated_ptrISaI3LedEEC1ERS1_PS0_>:
+    {
+      using pointer = typename allocator_traits<_Alloc>::pointer;
+      using value_type = typename allocator_traits<_Alloc>::value_type;
+
+      /// Take ownership of __ptr
+      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
+ 8000a1c:	b480      	push	{r7}
+ 8000a1e:	b085      	sub	sp, #20
+ 8000a20:	af00      	add	r7, sp, #0
+ 8000a22:	60f8      	str	r0, [r7, #12]
+ 8000a24:	60b9      	str	r1, [r7, #8]
+ 8000a26:	607a      	str	r2, [r7, #4]
+      : _M_alloc(&__a), _M_ptr(__ptr)
+ 8000a28:	68fb      	ldr	r3, [r7, #12]
+ 8000a2a:	68ba      	ldr	r2, [r7, #8]
+ 8000a2c:	601a      	str	r2, [r3, #0]
+ 8000a2e:	68fb      	ldr	r3, [r7, #12]
+ 8000a30:	687a      	ldr	r2, [r7, #4]
+ 8000a32:	605a      	str	r2, [r3, #4]
+      { }
+ 8000a34:	68fb      	ldr	r3, [r7, #12]
+ 8000a36:	4618      	mov	r0, r3
+ 8000a38:	3714      	adds	r7, #20
+ 8000a3a:	46bd      	mov	sp, r7
+ 8000a3c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a40:	4770      	bx	lr
+ 8000a42:	bf00      	nop
+
+08000a44 <_ZNSt16allocator_traitsISaI3LedEE10deallocateERS1_PS0_j>:
+       *  @param  __n  The number of objects space was allocated for.
+       *
+       *  Calls <tt> a.deallocate(p, n) </tt>
+      */
+      static void
+      deallocate(allocator_type& __a, pointer __p, size_type __n)
+ 8000a44:	b580      	push	{r7, lr}
+ 8000a46:	b084      	sub	sp, #16
+ 8000a48:	af00      	add	r7, sp, #0
+ 8000a4a:	60f8      	str	r0, [r7, #12]
+ 8000a4c:	60b9      	str	r1, [r7, #8]
+ 8000a4e:	607a      	str	r2, [r7, #4]
+      { __a.deallocate(__p, __n); }
+ 8000a50:	687a      	ldr	r2, [r7, #4]
+ 8000a52:	68b9      	ldr	r1, [r7, #8]
+ 8000a54:	68f8      	ldr	r0, [r7, #12]
+ 8000a56:	f000 f941 	bl	8000cdc <_ZN9__gnu_cxx13new_allocatorI3LedE10deallocateEPS1_j>
+ 8000a5a:	bf00      	nop
+ 8000a5c:	3710      	adds	r7, #16
+ 8000a5e:	46bd      	mov	sp, r7
+ 8000a60:	bd80      	pop	{r7, pc}
+ 8000a62:	bf00      	nop
+
+08000a64 <_ZNSt15__allocated_ptrISaI3LedEE10_S_raw_ptrEPS0_>:
+
+      /// Get the address that the owned pointer refers to.
+      value_type* get() { return _S_raw_ptr(_M_ptr); }
+
+    private:
+      value_type* _S_raw_ptr(value_type* __ptr) { return __ptr; }
+ 8000a64:	b480      	push	{r7}
+ 8000a66:	b083      	sub	sp, #12
+ 8000a68:	af00      	add	r7, sp, #0
+ 8000a6a:	6078      	str	r0, [r7, #4]
+ 8000a6c:	6039      	str	r1, [r7, #0]
+ 8000a6e:	683b      	ldr	r3, [r7, #0]
+ 8000a70:	4618      	mov	r0, r3
+ 8000a72:	370c      	adds	r7, #12
+ 8000a74:	46bd      	mov	sp, r7
+ 8000a76:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a7a:	4770      	bx	lr
+
+08000a7c <_ZN9ComponentC1Ev>:
+class Component
+ 8000a7c:	b480      	push	{r7}
+ 8000a7e:	b083      	sub	sp, #12
+ 8000a80:	af00      	add	r7, sp, #0
+ 8000a82:	6078      	str	r0, [r7, #4]
+ 8000a84:	4a04      	ldr	r2, [pc, #16]	; (8000a98 <_ZN9ComponentC1Ev+0x1c>)
+ 8000a86:	687b      	ldr	r3, [r7, #4]
+ 8000a88:	601a      	str	r2, [r3, #0]
+ 8000a8a:	687b      	ldr	r3, [r7, #4]
+ 8000a8c:	4618      	mov	r0, r3
+ 8000a8e:	370c      	adds	r7, #12
+ 8000a90:	46bd      	mov	sp, r7
+ 8000a92:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a96:	4770      	bx	lr
+ 8000a98:	080018bc 	.word	0x080018bc
+
+08000a9c <_ZN3LedC1Ev>:
+#define HEADERS_LED_H_
+
+#include "Component.h"
+#include "stm32f4xx.h"
+
+class Led : Component
+ 8000a9c:	b580      	push	{r7, lr}
+ 8000a9e:	b082      	sub	sp, #8
+ 8000aa0:	af00      	add	r7, sp, #0
+ 8000aa2:	6078      	str	r0, [r7, #4]
+ 8000aa4:	687b      	ldr	r3, [r7, #4]
+ 8000aa6:	4618      	mov	r0, r3
+ 8000aa8:	f7ff ffe8 	bl	8000a7c <_ZN9ComponentC1Ev>
+ 8000aac:	4a03      	ldr	r2, [pc, #12]	; (8000abc <_ZN3LedC1Ev+0x20>)
+ 8000aae:	687b      	ldr	r3, [r7, #4]
+ 8000ab0:	601a      	str	r2, [r3, #0]
+ 8000ab2:	687b      	ldr	r3, [r7, #4]
+ 8000ab4:	4618      	mov	r0, r3
+ 8000ab6:	3708      	adds	r7, #8
+ 8000ab8:	46bd      	mov	sp, r7
+ 8000aba:	bd80      	pop	{r7, pc}
+ 8000abc:	08001884 	.word	0x08001884
+
+08000ac0 <_ZN9__gnu_cxx13new_allocatorI3LedE9constructIS1_IEEEvPT_DpOT0_>:
+      { return size_t(-1) / sizeof(_Tp); }
+
+#if __cplusplus >= 201103L
+      template<typename _Up, typename... _Args>
+        void
+        construct(_Up* __p, _Args&&... __args)
+ 8000ac0:	b580      	push	{r7, lr}
+ 8000ac2:	b082      	sub	sp, #8
+ 8000ac4:	af00      	add	r7, sp, #0
+ 8000ac6:	6078      	str	r0, [r7, #4]
+ 8000ac8:	6039      	str	r1, [r7, #0]
+	{ ::new((void *)__p) _Up(std::forward<_Args>(__args)...); }
+ 8000aca:	683b      	ldr	r3, [r7, #0]
+ 8000acc:	4619      	mov	r1, r3
+ 8000ace:	2004      	movs	r0, #4
+ 8000ad0:	f7ff fc96 	bl	8000400 <_ZnwjPv>
+ 8000ad4:	4603      	mov	r3, r0
+ 8000ad6:	2b00      	cmp	r3, #0
+ 8000ad8:	d004      	beq.n	8000ae4 <_ZN9__gnu_cxx13new_allocatorI3LedE9constructIS1_IEEEvPT_DpOT0_+0x24>
+ 8000ada:	2200      	movs	r2, #0
+ 8000adc:	601a      	str	r2, [r3, #0]
+ 8000ade:	4618      	mov	r0, r3
+ 8000ae0:	f7ff ffdc 	bl	8000a9c <_ZN3LedC1Ev>
+ 8000ae4:	bf00      	nop
+ 8000ae6:	3708      	adds	r7, #8
+ 8000ae8:	46bd      	mov	sp, r7
+ 8000aea:	bd80      	pop	{r7, pc}
+
+08000aec <_ZNSaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEEC1IS0_EERKSaIT_E>:
+
+      template<typename _Tp1>
+        allocator(const allocator<_Tp1>&) throw() { }
+ 8000aec:	b580      	push	{r7, lr}
+ 8000aee:	b082      	sub	sp, #8
+ 8000af0:	af00      	add	r7, sp, #0
+ 8000af2:	6078      	str	r0, [r7, #4]
+ 8000af4:	6039      	str	r1, [r7, #0]
+ 8000af6:	6878      	ldr	r0, [r7, #4]
+ 8000af8:	f000 f8fe 	bl	8000cf8 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEEC1Ev>
+ 8000afc:	687b      	ldr	r3, [r7, #4]
+ 8000afe:	4618      	mov	r0, r3
+ 8000b00:	3708      	adds	r7, #8
+ 8000b02:	46bd      	mov	sp, r7
+ 8000b04:	bd80      	pop	{r7, pc}
+ 8000b06:	bf00      	nop
+
+08000b08 <_ZNSaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEED1Ev>:
+
+      ~allocator() throw() { }
+ 8000b08:	b580      	push	{r7, lr}
+ 8000b0a:	b082      	sub	sp, #8
+ 8000b0c:	af00      	add	r7, sp, #0
+ 8000b0e:	6078      	str	r0, [r7, #4]
+ 8000b10:	6878      	ldr	r0, [r7, #4]
+ 8000b12:	f000 f8fd 	bl	8000d10 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEED1Ev>
+ 8000b16:	687b      	ldr	r3, [r7, #4]
+ 8000b18:	4618      	mov	r0, r3
+ 8000b1a:	3708      	adds	r7, #8
+ 8000b1c:	46bd      	mov	sp, r7
+ 8000b1e:	bd80      	pop	{r7, pc}
+
+08000b20 <_ZSt18__allocate_guardedISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEESt15__allocated_ptrIT_ERSD_>:
+    };
+
+  /// Allocate space for a single object using __a
+  template<typename _Alloc>
+    __allocated_ptr<_Alloc>
+    __allocate_guarded(_Alloc& __a)
+ 8000b20:	b580      	push	{r7, lr}
+ 8000b22:	b082      	sub	sp, #8
+ 8000b24:	af00      	add	r7, sp, #0
+ 8000b26:	6078      	str	r0, [r7, #4]
+ 8000b28:	6039      	str	r1, [r7, #0]
+    {
+      return { __a, std::allocator_traits<_Alloc>::allocate(__a, 1) };
+ 8000b2a:	2101      	movs	r1, #1
+ 8000b2c:	6838      	ldr	r0, [r7, #0]
+ 8000b2e:	f000 f8fb 	bl	8000d28 <_ZNSt16allocator_traitsISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE8allocateERSB_j>
+ 8000b32:	4603      	mov	r3, r0
+ 8000b34:	461a      	mov	r2, r3
+ 8000b36:	6839      	ldr	r1, [r7, #0]
+ 8000b38:	6878      	ldr	r0, [r7, #4]
+ 8000b3a:	f000 f905 	bl	8000d48 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEEC1ERSB_PSA_>
+    }
+ 8000b3e:	6878      	ldr	r0, [r7, #4]
+ 8000b40:	3708      	adds	r7, #8
+ 8000b42:	46bd      	mov	sp, r7
+ 8000b44:	bd80      	pop	{r7, pc}
+ 8000b46:	bf00      	nop
+
+08000b48 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEED1Ev>:
+      __allocated_ptr(__allocated_ptr&& __gd) noexcept
+      : _M_alloc(__gd._M_alloc), _M_ptr(__gd._M_ptr)
+      { __gd._M_ptr = nullptr; }
+
+      /// Deallocate the owned pointer
+      ~__allocated_ptr()
+ 8000b48:	b580      	push	{r7, lr}
+ 8000b4a:	b082      	sub	sp, #8
+ 8000b4c:	af00      	add	r7, sp, #0
+ 8000b4e:	6078      	str	r0, [r7, #4]
+      {
+	if (_M_ptr != nullptr)
+ 8000b50:	687b      	ldr	r3, [r7, #4]
+ 8000b52:	685b      	ldr	r3, [r3, #4]
+ 8000b54:	2b00      	cmp	r3, #0
+ 8000b56:	d007      	beq.n	8000b68 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEED1Ev+0x20>
+	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
+ 8000b58:	687b      	ldr	r3, [r7, #4]
+ 8000b5a:	6818      	ldr	r0, [r3, #0]
+ 8000b5c:	687b      	ldr	r3, [r7, #4]
+ 8000b5e:	685b      	ldr	r3, [r3, #4]
+ 8000b60:	2201      	movs	r2, #1
+ 8000b62:	4619      	mov	r1, r3
+ 8000b64:	f000 f904 	bl	8000d70 <_ZNSt16allocator_traitsISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE10deallocateERSB_PSA_j>
+      }
+ 8000b68:	687b      	ldr	r3, [r7, #4]
+ 8000b6a:	4618      	mov	r0, r3
+ 8000b6c:	3708      	adds	r7, #8
+ 8000b6e:	46bd      	mov	sp, r7
+ 8000b70:	bd80      	pop	{r7, pc}
+ 8000b72:	bf00      	nop
+
+08000b74 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE3getEv>:
+	_M_ptr = nullptr;
+	return *this;
+      }
+
+      /// Get the address that the owned pointer refers to.
+      value_type* get() { return _S_raw_ptr(_M_ptr); }
+ 8000b74:	b580      	push	{r7, lr}
+ 8000b76:	b082      	sub	sp, #8
+ 8000b78:	af00      	add	r7, sp, #0
+ 8000b7a:	6078      	str	r0, [r7, #4]
+ 8000b7c:	687b      	ldr	r3, [r7, #4]
+ 8000b7e:	685b      	ldr	r3, [r3, #4]
+ 8000b80:	4619      	mov	r1, r3
+ 8000b82:	6878      	ldr	r0, [r7, #4]
+ 8000b84:	f000 f904 	bl	8000d90 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE10_S_raw_ptrEPSA_>
+ 8000b88:	4603      	mov	r3, r0
+ 8000b8a:	4618      	mov	r0, r3
+ 8000b8c:	3708      	adds	r7, #8
+ 8000b8e:	46bd      	mov	sp, r7
+ 8000b90:	bd80      	pop	{r7, pc}
+ 8000b92:	bf00      	nop
+
+08000b94 <_ZNSt14_Sp_ebo_helperILi0ENSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEELb0EED1Ev>:
+      _S_get(_Sp_ebo_helper& __eboh) { return static_cast<_Tp&>(__eboh); }
+    };
+
+  /// Specialization not using EBO.
+  template<int _Nm, typename _Tp>
+    struct _Sp_ebo_helper<_Nm, _Tp, false>
+ 8000b94:	b580      	push	{r7, lr}
+ 8000b96:	b082      	sub	sp, #8
+ 8000b98:	af00      	add	r7, sp, #0
+ 8000b9a:	6078      	str	r0, [r7, #4]
+ 8000b9c:	687b      	ldr	r3, [r7, #4]
+ 8000b9e:	4618      	mov	r0, r3
+ 8000ba0:	f7ff fd98 	bl	80006d4 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EED1Ev>
+ 8000ba4:	687b      	ldr	r3, [r7, #4]
+ 8000ba6:	4618      	mov	r0, r3
+ 8000ba8:	3708      	adds	r7, #8
+ 8000baa:	46bd      	mov	sp, r7
+ 8000bac:	bd80      	pop	{r7, pc}
+ 8000bae:	bf00      	nop
+
+08000bb0 <_ZNSt14_Sp_ebo_helperILi1ESaI3LedELb1EED1Ev>:
+	   bool __use_ebo = !__is_final(_Tp) && __is_empty(_Tp)>
+    struct _Sp_ebo_helper;
+
+  /// Specialization using EBO.
+  template<int _Nm, typename _Tp>
+    struct _Sp_ebo_helper<_Nm, _Tp, true> : private _Tp
+ 8000bb0:	b580      	push	{r7, lr}
+ 8000bb2:	b082      	sub	sp, #8
+ 8000bb4:	af00      	add	r7, sp, #0
+ 8000bb6:	6078      	str	r0, [r7, #4]
+ 8000bb8:	6878      	ldr	r0, [r7, #4]
+ 8000bba:	f7ff fd23 	bl	8000604 <_ZNSaI3LedED1Ev>
+ 8000bbe:	687b      	ldr	r3, [r7, #4]
+ 8000bc0:	4618      	mov	r0, r3
+ 8000bc2:	3708      	adds	r7, #8
+ 8000bc4:	46bd      	mov	sp, r7
+ 8000bc6:	bd80      	pop	{r7, pc}
+
+08000bc8 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_ImplD1Ev>:
+
+  // Support for custom deleter and/or allocator
+  template<typename _Ptr, typename _Deleter, typename _Alloc, _Lock_policy _Lp>
+    class _Sp_counted_deleter final : public _Sp_counted_base<_Lp>
+    {
+      class _Impl : _Sp_ebo_helper<0, _Deleter>, _Sp_ebo_helper<1, _Alloc>
+ 8000bc8:	b580      	push	{r7, lr}
+ 8000bca:	b082      	sub	sp, #8
+ 8000bcc:	af00      	add	r7, sp, #0
+ 8000bce:	6078      	str	r0, [r7, #4]
+ 8000bd0:	687b      	ldr	r3, [r7, #4]
+ 8000bd2:	3301      	adds	r3, #1
+ 8000bd4:	4618      	mov	r0, r3
+ 8000bd6:	f7ff ffeb 	bl	8000bb0 <_ZNSt14_Sp_ebo_helperILi1ESaI3LedELb1EED1Ev>
+ 8000bda:	687b      	ldr	r3, [r7, #4]
+ 8000bdc:	4618      	mov	r0, r3
+ 8000bde:	f7ff ffd9 	bl	8000b94 <_ZNSt14_Sp_ebo_helperILi0ENSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEELb0EED1Ev>
+ 8000be2:	687b      	ldr	r3, [r7, #4]
+ 8000be4:	4618      	mov	r0, r3
+ 8000be6:	3708      	adds	r7, #8
+ 8000be8:	46bd      	mov	sp, r7
+ 8000bea:	bd80      	pop	{r7, pc}
+
+08000bec <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEC1ES1_S8_RKS7_>:
+      // __d(__p) must not throw.
+      _Sp_counted_deleter(_Ptr __p, _Deleter __d) noexcept
+      : _M_impl(__p, __d, _Alloc()) { }
+
+      // __d(__p) must not throw.
+      _Sp_counted_deleter(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
+ 8000bec:	b590      	push	{r4, r7, lr}
+ 8000bee:	b087      	sub	sp, #28
+ 8000bf0:	af00      	add	r7, sp, #0
+ 8000bf2:	60f8      	str	r0, [r7, #12]
+ 8000bf4:	60b9      	str	r1, [r7, #8]
+ 8000bf6:	607a      	str	r2, [r7, #4]
+ 8000bf8:	603b      	str	r3, [r7, #0]
+      : _M_impl(__p, __d, __a) { }
+ 8000bfa:	68fb      	ldr	r3, [r7, #12]
+ 8000bfc:	4618      	mov	r0, r3
+ 8000bfe:	f000 f8df 	bl	8000dc0 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EEC1Ev>
+ 8000c02:	4a0e      	ldr	r2, [pc, #56]	; (8000c3c <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEC1ES1_S8_RKS7_+0x50>)
+ 8000c04:	68fb      	ldr	r3, [r7, #12]
+ 8000c06:	601a      	str	r2, [r3, #0]
+ 8000c08:	68fb      	ldr	r3, [r7, #12]
+ 8000c0a:	f103 040c 	add.w	r4, r3, #12
+ 8000c0e:	f107 0314 	add.w	r3, r7, #20
+ 8000c12:	6879      	ldr	r1, [r7, #4]
+ 8000c14:	4618      	mov	r0, r3
+ 8000c16:	f7ff fd6b 	bl	80006f0 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEC1ERKS6_>
+ 8000c1a:	f107 0214 	add.w	r2, r7, #20
+ 8000c1e:	683b      	ldr	r3, [r7, #0]
+ 8000c20:	68b9      	ldr	r1, [r7, #8]
+ 8000c22:	4620      	mov	r0, r4
+ 8000c24:	f000 f8e4 	bl	8000df0 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_ImplC1ES1_S8_RKS7_>
+ 8000c28:	f107 0314 	add.w	r3, r7, #20
+ 8000c2c:	4618      	mov	r0, r3
+ 8000c2e:	f7ff fd51 	bl	80006d4 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EED1Ev>
+ 8000c32:	68fb      	ldr	r3, [r7, #12]
+ 8000c34:	4618      	mov	r0, r3
+ 8000c36:	371c      	adds	r7, #28
+ 8000c38:	46bd      	mov	sp, r7
+ 8000c3a:	bd90      	pop	{r4, r7, pc}
+ 8000c3c:	080018a0 	.word	0x080018a0
+
+08000c40 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEEaSEDn>:
+	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
+      }
+
+      /// Release ownership of the owned pointer
+      __allocated_ptr&
+      operator=(std::nullptr_t) noexcept
+ 8000c40:	b480      	push	{r7}
+ 8000c42:	b083      	sub	sp, #12
+ 8000c44:	af00      	add	r7, sp, #0
+ 8000c46:	6078      	str	r0, [r7, #4]
+ 8000c48:	6039      	str	r1, [r7, #0]
+      {
+	_M_ptr = nullptr;
+ 8000c4a:	687b      	ldr	r3, [r7, #4]
+ 8000c4c:	2200      	movs	r2, #0
+ 8000c4e:	605a      	str	r2, [r3, #4]
+	return *this;
+ 8000c50:	687b      	ldr	r3, [r7, #4]
+      }
+ 8000c52:	4618      	mov	r0, r3
+ 8000c54:	370c      	adds	r7, #12
+ 8000c56:	46bd      	mov	sp, r7
+ 8000c58:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000c5c:	4770      	bx	lr
+ 8000c5e:	bf00      	nop
+
+08000c60 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEclEPS0_>:
+	}
+#else
+      template<typename _Alloc>
+        struct _Deleter
+        {
+          void operator()(typename _Alloc::value_type* __ptr)
+ 8000c60:	b590      	push	{r4, r7, lr}
+ 8000c62:	b085      	sub	sp, #20
+ 8000c64:	af00      	add	r7, sp, #0
+ 8000c66:	6078      	str	r0, [r7, #4]
+ 8000c68:	6039      	str	r1, [r7, #0]
+          {
+	    __allocated_ptr<_Alloc> __guard{ _M_alloc, __ptr };
+ 8000c6a:	6879      	ldr	r1, [r7, #4]
+ 8000c6c:	f107 0308 	add.w	r3, r7, #8
+ 8000c70:	683a      	ldr	r2, [r7, #0]
+ 8000c72:	4618      	mov	r0, r3
+ 8000c74:	f7ff fed2 	bl	8000a1c <_ZNSt15__allocated_ptrISaI3LedEEC1ERS1_PS0_>
+	    allocator_traits<_Alloc>::destroy(_M_alloc, __guard.get());
+ 8000c78:	687c      	ldr	r4, [r7, #4]
+ 8000c7a:	f107 0308 	add.w	r3, r7, #8
+ 8000c7e:	4618      	mov	r0, r3
+ 8000c80:	f7ff fdf8 	bl	8000874 <_ZNSt15__allocated_ptrISaI3LedEE3getEv>
+ 8000c84:	4603      	mov	r3, r0
+ 8000c86:	4619      	mov	r1, r3
+ 8000c88:	4620      	mov	r0, r4
+ 8000c8a:	f000 f8cb 	bl	8000e24 <_ZNSt16allocator_traitsISaI3LedEE7destroyIS0_EEvRS1_PT_>
+      template<typename _Alloc>
+        struct _Deleter
+        {
+          void operator()(typename _Alloc::value_type* __ptr)
+          {
+	    __allocated_ptr<_Alloc> __guard{ _M_alloc, __ptr };
+ 8000c8e:	f107 0308 	add.w	r3, r7, #8
+ 8000c92:	4618      	mov	r0, r3
+ 8000c94:	f7ff fdd8 	bl	8000848 <_ZNSt15__allocated_ptrISaI3LedEED1Ev>
+	    allocator_traits<_Alloc>::destroy(_M_alloc, __guard.get());
+          }
+ 8000c98:	bf00      	nop
+ 8000c9a:	3714      	adds	r7, #20
+ 8000c9c:	46bd      	mov	sp, r7
+ 8000c9e:	bd90      	pop	{r4, r7, pc}
+
+08000ca0 <_ZN9__gnu_cxx13new_allocatorI3LedE8allocateEjPKv>:
+      { return std::__addressof(__x); }
+
+      // NB: __n is permitted to be 0.  The C++ standard says nothing
+      // about what the return value is when __n == 0.
+      pointer
+      allocate(size_type __n, const void* = 0)
+ 8000ca0:	b580      	push	{r7, lr}
+ 8000ca2:	b084      	sub	sp, #16
+ 8000ca4:	af00      	add	r7, sp, #0
+ 8000ca6:	60f8      	str	r0, [r7, #12]
+ 8000ca8:	60b9      	str	r1, [r7, #8]
+ 8000caa:	607a      	str	r2, [r7, #4]
+      { 
+	if (__n > this->max_size())
+ 8000cac:	68f8      	ldr	r0, [r7, #12]
+ 8000cae:	f000 f8c7 	bl	8000e40 <_ZNK9__gnu_cxx13new_allocatorI3LedE8max_sizeEv>
+ 8000cb2:	4602      	mov	r2, r0
+ 8000cb4:	68bb      	ldr	r3, [r7, #8]
+ 8000cb6:	429a      	cmp	r2, r3
+ 8000cb8:	bf34      	ite	cc
+ 8000cba:	2301      	movcc	r3, #1
+ 8000cbc:	2300      	movcs	r3, #0
+ 8000cbe:	b2db      	uxtb	r3, r3
+ 8000cc0:	2b00      	cmp	r3, #0
+ 8000cc2:	d001      	beq.n	8000cc8 <_ZN9__gnu_cxx13new_allocatorI3LedE8allocateEjPKv+0x28>
+	  std::__throw_bad_alloc();
+ 8000cc4:	f000 fb19 	bl	80012fa <_ZSt17__throw_bad_allocv>
+
+	return static_cast<_Tp*>(::operator new(__n * sizeof(_Tp)));
+ 8000cc8:	68bb      	ldr	r3, [r7, #8]
+ 8000cca:	009b      	lsls	r3, r3, #2
+ 8000ccc:	4618      	mov	r0, r3
+ 8000cce:	f000 faf0 	bl	80012b2 <_Znwj>
+ 8000cd2:	4603      	mov	r3, r0
+      }
+ 8000cd4:	4618      	mov	r0, r3
+ 8000cd6:	3710      	adds	r7, #16
+ 8000cd8:	46bd      	mov	sp, r7
+ 8000cda:	bd80      	pop	{r7, pc}
+
+08000cdc <_ZN9__gnu_cxx13new_allocatorI3LedE10deallocateEPS1_j>:
+
+      // __p is not permitted to be a null pointer.
+      void
+      deallocate(pointer __p, size_type)
+ 8000cdc:	b580      	push	{r7, lr}
+ 8000cde:	b084      	sub	sp, #16
+ 8000ce0:	af00      	add	r7, sp, #0
+ 8000ce2:	60f8      	str	r0, [r7, #12]
+ 8000ce4:	60b9      	str	r1, [r7, #8]
+ 8000ce6:	607a      	str	r2, [r7, #4]
+      { ::operator delete(__p); }
+ 8000ce8:	68b8      	ldr	r0, [r7, #8]
+ 8000cea:	f000 fb04 	bl	80012f6 <_ZdlPv>
+ 8000cee:	bf00      	nop
+ 8000cf0:	3710      	adds	r7, #16
+ 8000cf2:	46bd      	mov	sp, r7
+ 8000cf4:	bd80      	pop	{r7, pc}
+ 8000cf6:	bf00      	nop
+
+08000cf8 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEEC1Ev>:
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 2103. propagate_on_container_move_assignment
+      typedef std::true_type propagate_on_container_move_assignment;
+#endif
+
+      new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+ 8000cf8:	b480      	push	{r7}
+ 8000cfa:	b083      	sub	sp, #12
+ 8000cfc:	af00      	add	r7, sp, #0
+ 8000cfe:	6078      	str	r0, [r7, #4]
+ 8000d00:	687b      	ldr	r3, [r7, #4]
+ 8000d02:	4618      	mov	r0, r3
+ 8000d04:	370c      	adds	r7, #12
+ 8000d06:	46bd      	mov	sp, r7
+ 8000d08:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000d0c:	4770      	bx	lr
+ 8000d0e:	bf00      	nop
+
+08000d10 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEED1Ev>:
+      new_allocator(const new_allocator&) _GLIBCXX_USE_NOEXCEPT { }
+
+      template<typename _Tp1>
+        new_allocator(const new_allocator<_Tp1>&) _GLIBCXX_USE_NOEXCEPT { }
+
+      ~new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+ 8000d10:	b480      	push	{r7}
+ 8000d12:	b083      	sub	sp, #12
+ 8000d14:	af00      	add	r7, sp, #0
+ 8000d16:	6078      	str	r0, [r7, #4]
+ 8000d18:	687b      	ldr	r3, [r7, #4]
+ 8000d1a:	4618      	mov	r0, r3
+ 8000d1c:	370c      	adds	r7, #12
+ 8000d1e:	46bd      	mov	sp, r7
+ 8000d20:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000d24:	4770      	bx	lr
+ 8000d26:	bf00      	nop
+
+08000d28 <_ZNSt16allocator_traitsISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE8allocateERSB_j>:
+       *  @param  __n  The number of objects to allocate space for.
+       *
+       *  Calls @c a.allocate(n)
+      */
+      static pointer
+      allocate(allocator_type& __a, size_type __n)
+ 8000d28:	b580      	push	{r7, lr}
+ 8000d2a:	b082      	sub	sp, #8
+ 8000d2c:	af00      	add	r7, sp, #0
+ 8000d2e:	6078      	str	r0, [r7, #4]
+ 8000d30:	6039      	str	r1, [r7, #0]
+      { return __a.allocate(__n); }
+ 8000d32:	2200      	movs	r2, #0
+ 8000d34:	6839      	ldr	r1, [r7, #0]
+ 8000d36:	6878      	ldr	r0, [r7, #4]
+ 8000d38:	f000 f88e 	bl	8000e58 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE8allocateEjPKv>
+ 8000d3c:	4603      	mov	r3, r0
+ 8000d3e:	4618      	mov	r0, r3
+ 8000d40:	3708      	adds	r7, #8
+ 8000d42:	46bd      	mov	sp, r7
+ 8000d44:	bd80      	pop	{r7, pc}
+ 8000d46:	bf00      	nop
+
+08000d48 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEEC1ERSB_PSA_>:
+    {
+      using pointer = typename allocator_traits<_Alloc>::pointer;
+      using value_type = typename allocator_traits<_Alloc>::value_type;
+
+      /// Take ownership of __ptr
+      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
+ 8000d48:	b480      	push	{r7}
+ 8000d4a:	b085      	sub	sp, #20
+ 8000d4c:	af00      	add	r7, sp, #0
+ 8000d4e:	60f8      	str	r0, [r7, #12]
+ 8000d50:	60b9      	str	r1, [r7, #8]
+ 8000d52:	607a      	str	r2, [r7, #4]
+      : _M_alloc(&__a), _M_ptr(__ptr)
+ 8000d54:	68fb      	ldr	r3, [r7, #12]
+ 8000d56:	68ba      	ldr	r2, [r7, #8]
+ 8000d58:	601a      	str	r2, [r3, #0]
+ 8000d5a:	68fb      	ldr	r3, [r7, #12]
+ 8000d5c:	687a      	ldr	r2, [r7, #4]
+ 8000d5e:	605a      	str	r2, [r3, #4]
+      { }
+ 8000d60:	68fb      	ldr	r3, [r7, #12]
+ 8000d62:	4618      	mov	r0, r3
+ 8000d64:	3714      	adds	r7, #20
+ 8000d66:	46bd      	mov	sp, r7
+ 8000d68:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000d6c:	4770      	bx	lr
+ 8000d6e:	bf00      	nop
+
+08000d70 <_ZNSt16allocator_traitsISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE10deallocateERSB_PSA_j>:
+       *  @param  __n  The number of objects space was allocated for.
+       *
+       *  Calls <tt> a.deallocate(p, n) </tt>
+      */
+      static void
+      deallocate(allocator_type& __a, pointer __p, size_type __n)
+ 8000d70:	b580      	push	{r7, lr}
+ 8000d72:	b084      	sub	sp, #16
+ 8000d74:	af00      	add	r7, sp, #0
+ 8000d76:	60f8      	str	r0, [r7, #12]
+ 8000d78:	60b9      	str	r1, [r7, #8]
+ 8000d7a:	607a      	str	r2, [r7, #4]
+      { __a.deallocate(__p, __n); }
+ 8000d7c:	687a      	ldr	r2, [r7, #4]
+ 8000d7e:	68b9      	ldr	r1, [r7, #8]
+ 8000d80:	68f8      	ldr	r0, [r7, #12]
+ 8000d82:	f000 f88b 	bl	8000e9c <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE10deallocateEPSA_j>
+ 8000d86:	bf00      	nop
+ 8000d88:	3710      	adds	r7, #16
+ 8000d8a:	46bd      	mov	sp, r7
+ 8000d8c:	bd80      	pop	{r7, pc}
+ 8000d8e:	bf00      	nop
+
+08000d90 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEE10_S_raw_ptrEPSA_>:
+
+      /// Get the address that the owned pointer refers to.
+      value_type* get() { return _S_raw_ptr(_M_ptr); }
+
+    private:
+      value_type* _S_raw_ptr(value_type* __ptr) { return __ptr; }
+ 8000d90:	b480      	push	{r7}
+ 8000d92:	b083      	sub	sp, #12
+ 8000d94:	af00      	add	r7, sp, #0
+ 8000d96:	6078      	str	r0, [r7, #4]
+ 8000d98:	6039      	str	r1, [r7, #0]
+ 8000d9a:	683b      	ldr	r3, [r7, #0]
+ 8000d9c:	4618      	mov	r0, r3
+ 8000d9e:	370c      	adds	r7, #12
+ 8000da0:	46bd      	mov	sp, r7
+ 8000da2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000da6:	4770      	bx	lr
+
+08000da8 <_ZNSt11_Mutex_baseILN9__gnu_cxx12_Lock_policyE0EEC1Ev>:
+  using __gnu_cxx::_S_mutex;
+  using __gnu_cxx::_S_atomic;
+
+  // Empty helper class except when the template argument is _S_mutex.
+  template<_Lock_policy _Lp>
+    class _Mutex_base
+ 8000da8:	b480      	push	{r7}
+ 8000daa:	b083      	sub	sp, #12
+ 8000dac:	af00      	add	r7, sp, #0
+ 8000dae:	6078      	str	r0, [r7, #4]
+ 8000db0:	687b      	ldr	r3, [r7, #4]
+ 8000db2:	4618      	mov	r0, r3
+ 8000db4:	370c      	adds	r7, #12
+ 8000db6:	46bd      	mov	sp, r7
+ 8000db8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000dbc:	4770      	bx	lr
+ 8000dbe:	bf00      	nop
+
+08000dc0 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EEC1Ev>:
+  template<_Lock_policy _Lp = __default_lock_policy>
+    class _Sp_counted_base
+    : public _Mutex_base<_Lp>
+    {
+    public:  
+      _Sp_counted_base() noexcept
+ 8000dc0:	b580      	push	{r7, lr}
+ 8000dc2:	b082      	sub	sp, #8
+ 8000dc4:	af00      	add	r7, sp, #0
+ 8000dc6:	6078      	str	r0, [r7, #4]
+      : _M_use_count(1), _M_weak_count(1) { }
+ 8000dc8:	6878      	ldr	r0, [r7, #4]
+ 8000dca:	f7ff ffed 	bl	8000da8 <_ZNSt11_Mutex_baseILN9__gnu_cxx12_Lock_policyE0EEC1Ev>
+ 8000dce:	4a07      	ldr	r2, [pc, #28]	; (8000dec <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EEC1Ev+0x2c>)
+ 8000dd0:	687b      	ldr	r3, [r7, #4]
+ 8000dd2:	601a      	str	r2, [r3, #0]
+ 8000dd4:	687b      	ldr	r3, [r7, #4]
+ 8000dd6:	2201      	movs	r2, #1
+ 8000dd8:	605a      	str	r2, [r3, #4]
+ 8000dda:	687b      	ldr	r3, [r7, #4]
+ 8000ddc:	2201      	movs	r2, #1
+ 8000dde:	609a      	str	r2, [r3, #8]
+ 8000de0:	687b      	ldr	r3, [r7, #4]
+ 8000de2:	4618      	mov	r0, r3
+ 8000de4:	3708      	adds	r7, #8
+ 8000de6:	46bd      	mov	sp, r7
+ 8000de8:	bd80      	pop	{r7, pc}
+ 8000dea:	bf00      	nop
+ 8000dec:	080018d8 	.word	0x080018d8
+
+08000df0 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_ImplC1ES1_S8_RKS7_>:
+      {
+	typedef _Sp_ebo_helper<0, _Deleter>	_Del_base;
+	typedef _Sp_ebo_helper<1, _Alloc>	_Alloc_base;
+
+      public:
+	_Impl(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
+ 8000df0:	b580      	push	{r7, lr}
+ 8000df2:	b084      	sub	sp, #16
+ 8000df4:	af00      	add	r7, sp, #0
+ 8000df6:	60f8      	str	r0, [r7, #12]
+ 8000df8:	60b9      	str	r1, [r7, #8]
+ 8000dfa:	607a      	str	r2, [r7, #4]
+ 8000dfc:	603b      	str	r3, [r7, #0]
+	: _M_ptr(__p), _Del_base(__d), _Alloc_base(__a)
+ 8000dfe:	68fb      	ldr	r3, [r7, #12]
+ 8000e00:	6879      	ldr	r1, [r7, #4]
+ 8000e02:	4618      	mov	r0, r3
+ 8000e04:	f000 f858 	bl	8000eb8 <_ZNSt14_Sp_ebo_helperILi0ENSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEELb0EEC1ERKS7_>
+ 8000e08:	68fb      	ldr	r3, [r7, #12]
+ 8000e0a:	3301      	adds	r3, #1
+ 8000e0c:	6839      	ldr	r1, [r7, #0]
+ 8000e0e:	4618      	mov	r0, r3
+ 8000e10:	f000 f862 	bl	8000ed8 <_ZNSt14_Sp_ebo_helperILi1ESaI3LedELb1EEC1ERKS1_>
+ 8000e14:	68fb      	ldr	r3, [r7, #12]
+ 8000e16:	68ba      	ldr	r2, [r7, #8]
+ 8000e18:	605a      	str	r2, [r3, #4]
+	{ }
+ 8000e1a:	68fb      	ldr	r3, [r7, #12]
+ 8000e1c:	4618      	mov	r0, r3
+ 8000e1e:	3710      	adds	r7, #16
+ 8000e20:	46bd      	mov	sp, r7
+ 8000e22:	bd80      	pop	{r7, pc}
+
+08000e24 <_ZNSt16allocator_traitsISaI3LedEE7destroyIS0_EEvRS1_PT_>:
+       *
+       *  Calls @c __a.destroy(__p).
+      */
+      template<typename _Up>
+	static void
+	destroy(allocator_type& __a, _Up* __p)
+ 8000e24:	b580      	push	{r7, lr}
+ 8000e26:	b082      	sub	sp, #8
+ 8000e28:	af00      	add	r7, sp, #0
+ 8000e2a:	6078      	str	r0, [r7, #4]
+ 8000e2c:	6039      	str	r1, [r7, #0]
+	{ __a.destroy(__p); }
+ 8000e2e:	6839      	ldr	r1, [r7, #0]
+ 8000e30:	6878      	ldr	r0, [r7, #4]
+ 8000e32:	f000 f85f 	bl	8000ef4 <_ZN9__gnu_cxx13new_allocatorI3LedE7destroyIS1_EEvPT_>
+ 8000e36:	bf00      	nop
+ 8000e38:	3708      	adds	r7, #8
+ 8000e3a:	46bd      	mov	sp, r7
+ 8000e3c:	bd80      	pop	{r7, pc}
+ 8000e3e:	bf00      	nop
+
+08000e40 <_ZNK9__gnu_cxx13new_allocatorI3LedE8max_sizeEv>:
+      void
+      deallocate(pointer __p, size_type)
+      { ::operator delete(__p); }
+
+      size_type
+      max_size() const _GLIBCXX_USE_NOEXCEPT
+ 8000e40:	b480      	push	{r7}
+ 8000e42:	b083      	sub	sp, #12
+ 8000e44:	af00      	add	r7, sp, #0
+ 8000e46:	6078      	str	r0, [r7, #4]
+      { return size_t(-1) / sizeof(_Tp); }
+ 8000e48:	f06f 4340 	mvn.w	r3, #3221225472	; 0xc0000000
+ 8000e4c:	4618      	mov	r0, r3
+ 8000e4e:	370c      	adds	r7, #12
+ 8000e50:	46bd      	mov	sp, r7
+ 8000e52:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000e56:	4770      	bx	lr
+
+08000e58 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE8allocateEjPKv>:
+      { return std::__addressof(__x); }
+
+      // NB: __n is permitted to be 0.  The C++ standard says nothing
+      // about what the return value is when __n == 0.
+      pointer
+      allocate(size_type __n, const void* = 0)
+ 8000e58:	b580      	push	{r7, lr}
+ 8000e5a:	b084      	sub	sp, #16
+ 8000e5c:	af00      	add	r7, sp, #0
+ 8000e5e:	60f8      	str	r0, [r7, #12]
+ 8000e60:	60b9      	str	r1, [r7, #8]
+ 8000e62:	607a      	str	r2, [r7, #4]
+      { 
+	if (__n > this->max_size())
+ 8000e64:	68f8      	ldr	r0, [r7, #12]
+ 8000e66:	f000 f851 	bl	8000f0c <_ZNK9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE8max_sizeEv>
+ 8000e6a:	4602      	mov	r2, r0
+ 8000e6c:	68bb      	ldr	r3, [r7, #8]
+ 8000e6e:	429a      	cmp	r2, r3
+ 8000e70:	bf34      	ite	cc
+ 8000e72:	2301      	movcc	r3, #1
+ 8000e74:	2300      	movcs	r3, #0
+ 8000e76:	b2db      	uxtb	r3, r3
+ 8000e78:	2b00      	cmp	r3, #0
+ 8000e7a:	d001      	beq.n	8000e80 <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE8allocateEjPKv+0x28>
+	  std::__throw_bad_alloc();
+ 8000e7c:	f000 fa3d 	bl	80012fa <_ZSt17__throw_bad_allocv>
+
+	return static_cast<_Tp*>(::operator new(__n * sizeof(_Tp)));
+ 8000e80:	68ba      	ldr	r2, [r7, #8]
+ 8000e82:	4613      	mov	r3, r2
+ 8000e84:	009b      	lsls	r3, r3, #2
+ 8000e86:	4413      	add	r3, r2
+ 8000e88:	009b      	lsls	r3, r3, #2
+ 8000e8a:	4618      	mov	r0, r3
+ 8000e8c:	f000 fa11 	bl	80012b2 <_Znwj>
+ 8000e90:	4603      	mov	r3, r0
+      }
+ 8000e92:	4618      	mov	r0, r3
+ 8000e94:	3710      	adds	r7, #16
+ 8000e96:	46bd      	mov	sp, r7
+ 8000e98:	bd80      	pop	{r7, pc}
+ 8000e9a:	bf00      	nop
+
+08000e9c <_ZN9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE10deallocateEPSA_j>:
+
+      // __p is not permitted to be a null pointer.
+      void
+      deallocate(pointer __p, size_type)
+ 8000e9c:	b580      	push	{r7, lr}
+ 8000e9e:	b084      	sub	sp, #16
+ 8000ea0:	af00      	add	r7, sp, #0
+ 8000ea2:	60f8      	str	r0, [r7, #12]
+ 8000ea4:	60b9      	str	r1, [r7, #8]
+ 8000ea6:	607a      	str	r2, [r7, #4]
+      { ::operator delete(__p); }
+ 8000ea8:	68b8      	ldr	r0, [r7, #8]
+ 8000eaa:	f000 fa24 	bl	80012f6 <_ZdlPv>
+ 8000eae:	bf00      	nop
+ 8000eb0:	3710      	adds	r7, #16
+ 8000eb2:	46bd      	mov	sp, r7
+ 8000eb4:	bd80      	pop	{r7, pc}
+ 8000eb6:	bf00      	nop
+
+08000eb8 <_ZNSt14_Sp_ebo_helperILi0ENSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEELb0EEC1ERKS7_>:
+
+  /// Specialization not using EBO.
+  template<int _Nm, typename _Tp>
+    struct _Sp_ebo_helper<_Nm, _Tp, false>
+    {
+      explicit _Sp_ebo_helper(const _Tp& __tp) : _M_tp(__tp) { }
+ 8000eb8:	b580      	push	{r7, lr}
+ 8000eba:	b082      	sub	sp, #8
+ 8000ebc:	af00      	add	r7, sp, #0
+ 8000ebe:	6078      	str	r0, [r7, #4]
+ 8000ec0:	6039      	str	r1, [r7, #0]
+ 8000ec2:	687b      	ldr	r3, [r7, #4]
+ 8000ec4:	6839      	ldr	r1, [r7, #0]
+ 8000ec6:	4618      	mov	r0, r3
+ 8000ec8:	f7ff fc12 	bl	80006f0 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEC1ERKS6_>
+ 8000ecc:	687b      	ldr	r3, [r7, #4]
+ 8000ece:	4618      	mov	r0, r3
+ 8000ed0:	3708      	adds	r7, #8
+ 8000ed2:	46bd      	mov	sp, r7
+ 8000ed4:	bd80      	pop	{r7, pc}
+ 8000ed6:	bf00      	nop
+
+08000ed8 <_ZNSt14_Sp_ebo_helperILi1ESaI3LedELb1EEC1ERKS1_>:
+
+  /// Specialization using EBO.
+  template<int _Nm, typename _Tp>
+    struct _Sp_ebo_helper<_Nm, _Tp, true> : private _Tp
+    {
+      explicit _Sp_ebo_helper(const _Tp& __tp) : _Tp(__tp) { }
+ 8000ed8:	b580      	push	{r7, lr}
+ 8000eda:	b082      	sub	sp, #8
+ 8000edc:	af00      	add	r7, sp, #0
+ 8000ede:	6078      	str	r0, [r7, #4]
+ 8000ee0:	6039      	str	r1, [r7, #0]
+ 8000ee2:	6839      	ldr	r1, [r7, #0]
+ 8000ee4:	6878      	ldr	r0, [r7, #4]
+ 8000ee6:	f7ff fc8d 	bl	8000804 <_ZNSaI3LedEC1ERKS0_>
+ 8000eea:	687b      	ldr	r3, [r7, #4]
+ 8000eec:	4618      	mov	r0, r3
+ 8000eee:	3708      	adds	r7, #8
+ 8000ef0:	46bd      	mov	sp, r7
+ 8000ef2:	bd80      	pop	{r7, pc}
+
+08000ef4 <_ZN9__gnu_cxx13new_allocatorI3LedE7destroyIS1_EEvPT_>:
+        construct(_Up* __p, _Args&&... __args)
+	{ ::new((void *)__p) _Up(std::forward<_Args>(__args)...); }
+
+      template<typename _Up>
+        void 
+        destroy(_Up* __p) { __p->~_Up(); }
+ 8000ef4:	b480      	push	{r7}
+ 8000ef6:	b083      	sub	sp, #12
+ 8000ef8:	af00      	add	r7, sp, #0
+ 8000efa:	6078      	str	r0, [r7, #4]
+ 8000efc:	6039      	str	r1, [r7, #0]
+ 8000efe:	bf00      	nop
+ 8000f00:	370c      	adds	r7, #12
+ 8000f02:	46bd      	mov	sp, r7
+ 8000f04:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000f08:	4770      	bx	lr
+ 8000f0a:	bf00      	nop
+
+08000f0c <_ZNK9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE8max_sizeEv>:
+      void
+      deallocate(pointer __p, size_type)
+      { ::operator delete(__p); }
+
+      size_type
+      max_size() const _GLIBCXX_USE_NOEXCEPT
+ 8000f0c:	b480      	push	{r7}
+ 8000f0e:	b083      	sub	sp, #12
+ 8000f10:	af00      	add	r7, sp, #0
+ 8000f12:	6078      	str	r0, [r7, #4]
+      { return size_t(-1) / sizeof(_Tp); }
+ 8000f14:	4b03      	ldr	r3, [pc, #12]	; (8000f24 <_ZNK9__gnu_cxx13new_allocatorISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS2_LNS_12_Lock_policyE0EE8_DeleterISaIS2_EEES8_LS5_0EEE8max_sizeEv+0x18>)
+ 8000f16:	4618      	mov	r0, r3
+ 8000f18:	370c      	adds	r7, #12
+ 8000f1a:	46bd      	mov	sp, r7
+ 8000f1c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000f20:	4770      	bx	lr
+ 8000f22:	bf00      	nop
+ 8000f24:	0ccccccc 	.word	0x0ccccccc
+
+08000f28 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EED1Ev>:
+
+      // __d(__p) must not throw.
+      _Sp_counted_deleter(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
+      : _M_impl(__p, __d, __a) { }
+
+      ~_Sp_counted_deleter() noexcept { }
+ 8000f28:	b580      	push	{r7, lr}
+ 8000f2a:	b082      	sub	sp, #8
+ 8000f2c:	af00      	add	r7, sp, #0
+ 8000f2e:	6078      	str	r0, [r7, #4]
+ 8000f30:	4a0b      	ldr	r2, [pc, #44]	; (8000f60 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EED1Ev+0x38>)
+ 8000f32:	687b      	ldr	r3, [r7, #4]
+ 8000f34:	601a      	str	r2, [r3, #0]
+ 8000f36:	687b      	ldr	r3, [r7, #4]
+ 8000f38:	330c      	adds	r3, #12
+ 8000f3a:	4618      	mov	r0, r3
+ 8000f3c:	f7ff fe44 	bl	8000bc8 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_ImplD1Ev>
+ 8000f40:	687b      	ldr	r3, [r7, #4]
+ 8000f42:	4618      	mov	r0, r3
+ 8000f44:	f7ff fb2c 	bl	80005a0 <_ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE0EED1Ev>
+ 8000f48:	2300      	movs	r3, #0
+ 8000f4a:	2b00      	cmp	r3, #0
+ 8000f4c:	d003      	beq.n	8000f56 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EED1Ev+0x2e>
+ 8000f4e:	2114      	movs	r1, #20
+ 8000f50:	6878      	ldr	r0, [r7, #4]
+ 8000f52:	f000 f9a9 	bl	80012a8 <_ZdlPvj>
+ 8000f56:	687b      	ldr	r3, [r7, #4]
+ 8000f58:	4618      	mov	r0, r3
+ 8000f5a:	3708      	adds	r7, #8
+ 8000f5c:	46bd      	mov	sp, r7
+ 8000f5e:	bd80      	pop	{r7, pc}
+ 8000f60:	080018a0 	.word	0x080018a0
+
+08000f64 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EED0Ev>:
+ 8000f64:	b580      	push	{r7, lr}
+ 8000f66:	b082      	sub	sp, #8
+ 8000f68:	af00      	add	r7, sp, #0
+ 8000f6a:	6078      	str	r0, [r7, #4]
+ 8000f6c:	6878      	ldr	r0, [r7, #4]
+ 8000f6e:	f7ff ffdb 	bl	8000f28 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EED1Ev>
+ 8000f72:	2114      	movs	r1, #20
+ 8000f74:	6878      	ldr	r0, [r7, #4]
+ 8000f76:	f000 f997 	bl	80012a8 <_ZdlPvj>
+ 8000f7a:	687b      	ldr	r3, [r7, #4]
+ 8000f7c:	4618      	mov	r0, r3
+ 8000f7e:	3708      	adds	r7, #8
+ 8000f80:	46bd      	mov	sp, r7
+ 8000f82:	bd80      	pop	{r7, pc}
+
+08000f84 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE10_M_disposeEv>:
+
+      virtual void
+      _M_dispose() noexcept
+ 8000f84:	b580      	push	{r7, lr}
+ 8000f86:	b082      	sub	sp, #8
+ 8000f88:	af00      	add	r7, sp, #0
+ 8000f8a:	6078      	str	r0, [r7, #4]
+      { _M_impl._M_del()(_M_impl._M_ptr); }
+ 8000f8c:	687b      	ldr	r3, [r7, #4]
+ 8000f8e:	330c      	adds	r3, #12
+ 8000f90:	4618      	mov	r0, r3
+ 8000f92:	f000 f841 	bl	8001018 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_Impl6_M_delEv>
+ 8000f96:	4602      	mov	r2, r0
+ 8000f98:	687b      	ldr	r3, [r7, #4]
+ 8000f9a:	691b      	ldr	r3, [r3, #16]
+ 8000f9c:	4619      	mov	r1, r3
+ 8000f9e:	4610      	mov	r0, r2
+ 8000fa0:	f7ff fe5e 	bl	8000c60 <_ZNSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEclEPS0_>
+ 8000fa4:	bf00      	nop
+ 8000fa6:	3708      	adds	r7, #8
+ 8000fa8:	46bd      	mov	sp, r7
+ 8000faa:	bd80      	pop	{r7, pc}
+
+08000fac <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE10_M_destroyEv>:
+
+      virtual void
+      _M_destroy() noexcept
+ 8000fac:	b580      	push	{r7, lr}
+ 8000fae:	b086      	sub	sp, #24
+ 8000fb0:	af00      	add	r7, sp, #0
+ 8000fb2:	6078      	str	r0, [r7, #4]
+      {
+	__allocator_type __a(_M_impl._M_alloc());
+ 8000fb4:	687b      	ldr	r3, [r7, #4]
+ 8000fb6:	330c      	adds	r3, #12
+ 8000fb8:	4618      	mov	r0, r3
+ 8000fba:	f000 f83b 	bl	8001034 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_Impl8_M_allocEv>
+ 8000fbe:	4602      	mov	r2, r0
+ 8000fc0:	f107 0314 	add.w	r3, r7, #20
+ 8000fc4:	4611      	mov	r1, r2
+ 8000fc6:	4618      	mov	r0, r3
+ 8000fc8:	f7ff fd90 	bl	8000aec <_ZNSaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEEC1IS0_EERKSaIT_E>
+	__allocated_ptr<__allocator_type> __guard_ptr{ __a, this };
+ 8000fcc:	f107 0114 	add.w	r1, r7, #20
+ 8000fd0:	f107 030c 	add.w	r3, r7, #12
+ 8000fd4:	687a      	ldr	r2, [r7, #4]
+ 8000fd6:	4618      	mov	r0, r3
+ 8000fd8:	f7ff feb6 	bl	8000d48 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEEC1ERSB_PSA_>
+	this->~_Sp_counted_deleter();
+ 8000fdc:	6878      	ldr	r0, [r7, #4]
+ 8000fde:	f7ff ffa3 	bl	8000f28 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EED1Ev>
+
+      virtual void
+      _M_destroy() noexcept
+      {
+	__allocator_type __a(_M_impl._M_alloc());
+	__allocated_ptr<__allocator_type> __guard_ptr{ __a, this };
+ 8000fe2:	f107 030c 	add.w	r3, r7, #12
+ 8000fe6:	4618      	mov	r0, r3
+ 8000fe8:	f7ff fdae 	bl	8000b48 <_ZNSt15__allocated_ptrISaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS1_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEES8_LS5_0EEEED1Ev>
+      { _M_impl._M_del()(_M_impl._M_ptr); }
+
+      virtual void
+      _M_destroy() noexcept
+      {
+	__allocator_type __a(_M_impl._M_alloc());
+ 8000fec:	f107 0314 	add.w	r3, r7, #20
+ 8000ff0:	4618      	mov	r0, r3
+ 8000ff2:	f7ff fd89 	bl	8000b08 <_ZNSaISt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EEED1Ev>
+	__allocated_ptr<__allocator_type> __guard_ptr{ __a, this };
+	this->~_Sp_counted_deleter();
+      }
+ 8000ff6:	bf00      	nop
+ 8000ff8:	3718      	adds	r7, #24
+ 8000ffa:	46bd      	mov	sp, r7
+ 8000ffc:	bd80      	pop	{r7, pc}
+ 8000ffe:	bf00      	nop
+
+08001000 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE14_M_get_deleterERKSt9type_info>:
+
+      virtual void*
+      _M_get_deleter(const std::type_info& __ti) noexcept
+ 8001000:	b480      	push	{r7}
+ 8001002:	b083      	sub	sp, #12
+ 8001004:	af00      	add	r7, sp, #0
+ 8001006:	6078      	str	r0, [r7, #4]
+ 8001008:	6039      	str	r1, [r7, #0]
+	// 2400. shared_ptr's get_deleter() should use addressof()
+        return __ti == typeid(_Deleter)
+	  ? std::__addressof(_M_impl._M_del())
+	  : nullptr;
+#else
+        return nullptr;
+ 800100a:	2300      	movs	r3, #0
+#endif
+      }
+ 800100c:	4618      	mov	r0, r3
+ 800100e:	370c      	adds	r7, #12
+ 8001010:	46bd      	mov	sp, r7
+ 8001012:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001016:	4770      	bx	lr
+
+08001018 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_Impl6_M_delEv>:
+      public:
+	_Impl(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
+	: _M_ptr(__p), _Del_base(__d), _Alloc_base(__a)
+	{ }
+
+	_Deleter& _M_del() noexcept { return _Del_base::_S_get(*this); }
+ 8001018:	b580      	push	{r7, lr}
+ 800101a:	b082      	sub	sp, #8
+ 800101c:	af00      	add	r7, sp, #0
+ 800101e:	6078      	str	r0, [r7, #4]
+ 8001020:	687b      	ldr	r3, [r7, #4]
+ 8001022:	4618      	mov	r0, r3
+ 8001024:	f000 f814 	bl	8001050 <_ZNSt14_Sp_ebo_helperILi0ENSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEELb0EE6_S_getERS8_>
+ 8001028:	4603      	mov	r3, r0
+ 800102a:	4618      	mov	r0, r3
+ 800102c:	3708      	adds	r7, #8
+ 800102e:	46bd      	mov	sp, r7
+ 8001030:	bd80      	pop	{r7, pc}
+ 8001032:	bf00      	nop
+
+08001034 <_ZNSt19_Sp_counted_deleterIP3LedNSt12__shared_ptrIS0_LN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS0_EEES7_LS4_0EE5_Impl8_M_allocEv>:
+	_Alloc& _M_alloc() noexcept { return _Alloc_base::_S_get(*this); }
+ 8001034:	b580      	push	{r7, lr}
+ 8001036:	b082      	sub	sp, #8
+ 8001038:	af00      	add	r7, sp, #0
+ 800103a:	6078      	str	r0, [r7, #4]
+ 800103c:	687b      	ldr	r3, [r7, #4]
+ 800103e:	3301      	adds	r3, #1
+ 8001040:	4618      	mov	r0, r3
+ 8001042:	f000 f811 	bl	8001068 <_ZNSt14_Sp_ebo_helperILi1ESaI3LedELb1EE6_S_getERS2_>
+ 8001046:	4603      	mov	r3, r0
+ 8001048:	4618      	mov	r0, r3
+ 800104a:	3708      	adds	r7, #8
+ 800104c:	46bd      	mov	sp, r7
+ 800104e:	bd80      	pop	{r7, pc}
+
+08001050 <_ZNSt14_Sp_ebo_helperILi0ENSt12__shared_ptrI3LedLN9__gnu_cxx12_Lock_policyE0EE8_DeleterISaIS1_EEELb0EE6_S_getERS8_>:
+    struct _Sp_ebo_helper<_Nm, _Tp, false>
+    {
+      explicit _Sp_ebo_helper(const _Tp& __tp) : _M_tp(__tp) { }
+
+      static _Tp&
+      _S_get(_Sp_ebo_helper& __eboh)
+ 8001050:	b480      	push	{r7}
+ 8001052:	b083      	sub	sp, #12
+ 8001054:	af00      	add	r7, sp, #0
+ 8001056:	6078      	str	r0, [r7, #4]
+      { return __eboh._M_tp; }
+ 8001058:	687b      	ldr	r3, [r7, #4]
+ 800105a:	4618      	mov	r0, r3
+ 800105c:	370c      	adds	r7, #12
+ 800105e:	46bd      	mov	sp, r7
+ 8001060:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001064:	4770      	bx	lr
+ 8001066:	bf00      	nop
+
+08001068 <_ZNSt14_Sp_ebo_helperILi1ESaI3LedELb1EE6_S_getERS2_>:
+    struct _Sp_ebo_helper<_Nm, _Tp, true> : private _Tp
+    {
+      explicit _Sp_ebo_helper(const _Tp& __tp) : _Tp(__tp) { }
+
+      static _Tp&
+      _S_get(_Sp_ebo_helper& __eboh) { return static_cast<_Tp&>(__eboh); }
+ 8001068:	b480      	push	{r7}
+ 800106a:	b083      	sub	sp, #12
+ 800106c:	af00      	add	r7, sp, #0
+ 800106e:	6078      	str	r0, [r7, #4]
+ 8001070:	687b      	ldr	r3, [r7, #4]
+ 8001072:	4618      	mov	r0, r3
+ 8001074:	370c      	adds	r7, #12
+ 8001076:	46bd      	mov	sp, r7
+ 8001078:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800107c:	4770      	bx	lr
+ 800107e:	bf00      	nop
+
+08001080 <Reset_Handler>:
+
+    .section  .text.Reset_Handler
+  .weak  Reset_Handler
+  .type  Reset_Handler, %function
+Reset_Handler:  
+  ldr   sp, =_estack    /* Atollic update: set stack pointer */
+ 8001080:	f8df d034 	ldr.w	sp, [pc, #52]	; 80010b8 <LoopFillZerobss+0x14>
+
+/* Copy the data segment initializers from flash to SRAM */  
+  movs  r1, #0
+ 8001084:	2100      	movs	r1, #0
+  b  LoopCopyDataInit
+ 8001086:	e003      	b.n	8001090 <LoopCopyDataInit>
+
+08001088 <CopyDataInit>:
+
+CopyDataInit:
+  ldr  r3, =_sidata
+ 8001088:	4b0c      	ldr	r3, [pc, #48]	; (80010bc <LoopFillZerobss+0x18>)
+  ldr  r3, [r3, r1]
+ 800108a:	585b      	ldr	r3, [r3, r1]
+  str  r3, [r0, r1]
+ 800108c:	5043      	str	r3, [r0, r1]
+  adds  r1, r1, #4
+ 800108e:	3104      	adds	r1, #4
+
+08001090 <LoopCopyDataInit>:
+    
+LoopCopyDataInit:
+  ldr  r0, =_sdata
+ 8001090:	480b      	ldr	r0, [pc, #44]	; (80010c0 <LoopFillZerobss+0x1c>)
+  ldr  r3, =_edata
+ 8001092:	4b0c      	ldr	r3, [pc, #48]	; (80010c4 <LoopFillZerobss+0x20>)
+  adds  r2, r0, r1
+ 8001094:	1842      	adds	r2, r0, r1
+  cmp  r2, r3
+ 8001096:	429a      	cmp	r2, r3
+  bcc  CopyDataInit
+ 8001098:	d3f6      	bcc.n	8001088 <CopyDataInit>
+  ldr  r2, =_sbss
+ 800109a:	4a0b      	ldr	r2, [pc, #44]	; (80010c8 <LoopFillZerobss+0x24>)
+  b  LoopFillZerobss
+ 800109c:	e002      	b.n	80010a4 <LoopFillZerobss>
+
+0800109e <FillZerobss>:
+/* Zero fill the bss segment. */  
+FillZerobss:
+  movs  r3, #0
+ 800109e:	2300      	movs	r3, #0
+  str  r3, [r2], #4
+ 80010a0:	f842 3b04 	str.w	r3, [r2], #4
+
+080010a4 <LoopFillZerobss>:
+    
+LoopFillZerobss:
+  ldr  r3, = _ebss
+ 80010a4:	4b09      	ldr	r3, [pc, #36]	; (80010cc <LoopFillZerobss+0x28>)
+  cmp  r2, r3
+ 80010a6:	429a      	cmp	r2, r3
+  bcc  FillZerobss
+ 80010a8:	d3f9      	bcc.n	800109e <FillZerobss>
+
+/* Call the clock system intitialization function.*/
+  bl  SystemInit   
+ 80010aa:	f000 f84b 	bl	8001144 <SystemInit>
+/* Call static constructors */
+    bl __libc_init_array
+ 80010ae:	f000 fa7f 	bl	80015b0 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl  main
+ 80010b2:	f7ff f9e1 	bl	8000478 <main>
+  bx  lr    
+ 80010b6:	4770      	bx	lr
+
+    .section  .text.Reset_Handler
+  .weak  Reset_Handler
+  .type  Reset_Handler, %function
+Reset_Handler:  
+  ldr   sp, =_estack    /* Atollic update: set stack pointer */
+ 80010b8:	20018000 	.word	0x20018000
+/* Copy the data segment initializers from flash to SRAM */  
+  movs  r1, #0
+  b  LoopCopyDataInit
+
+CopyDataInit:
+  ldr  r3, =_sidata
+ 80010bc:	08001968 	.word	0x08001968
+  ldr  r3, [r3, r1]
+  str  r3, [r0, r1]
+  adds  r1, r1, #4
+    
+LoopCopyDataInit:
+  ldr  r0, =_sdata
+ 80010c0:	20000000 	.word	0x20000000
+  ldr  r3, =_edata
+ 80010c4:	20000068 	.word	0x20000068
+  adds  r2, r0, r1
+  cmp  r2, r3
+  bcc  CopyDataInit
+  ldr  r2, =_sbss
+ 80010c8:	20000068 	.word	0x20000068
+FillZerobss:
+  movs  r3, #0
+  str  r3, [r2], #4
+    
+LoopFillZerobss:
+  ldr  r3, = _ebss
+ 80010cc:	20000138 	.word	0x20000138
+
+080010d0 <ADC_IRQHandler>:
+ * @retval None       
+*/
+    .section  .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b  Infinite_Loop
+ 80010d0:	e7fe      	b.n	80010d0 <ADC_IRQHandler>
+	...
+
+080010d4 <NMI_Handler>:
+  * @brief   This function handles NMI exception.
+  * @param  None
+  * @retval None
+  */
+void NMI_Handler(void)
+{
+ 80010d4:	b480      	push	{r7}
+ 80010d6:	af00      	add	r7, sp, #0
+}
+ 80010d8:	bf00      	nop
+ 80010da:	46bd      	mov	sp, r7
+ 80010dc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80010e0:	4770      	bx	lr
+ 80010e2:	bf00      	nop
+
+080010e4 <HardFault_Handler>:
+  * @brief  This function handles Hard Fault exception.
+  * @param  None
+  * @retval None
+  */
+void HardFault_Handler(void)
+{
+ 80010e4:	b480      	push	{r7}
+ 80010e6:	af00      	add	r7, sp, #0
+  /* Go to infinite loop when Hard Fault exception occurs */
+  while (1)
+  {
+  }
+ 80010e8:	e7fe      	b.n	80010e8 <HardFault_Handler+0x4>
+ 80010ea:	bf00      	nop
+
+080010ec <MemManage_Handler>:
+  * @brief  This function handles Memory Manage exception.
+  * @param  None
+  * @retval None
+  */
+void MemManage_Handler(void)
+{
+ 80010ec:	b480      	push	{r7}
+ 80010ee:	af00      	add	r7, sp, #0
+  /* Go to infinite loop when Memory Manage exception occurs */
+  while (1)
+  {
+  }
+ 80010f0:	e7fe      	b.n	80010f0 <MemManage_Handler+0x4>
+ 80010f2:	bf00      	nop
+
+080010f4 <BusFault_Handler>:
+  * @brief  This function handles Bus Fault exception.
+  * @param  None
+  * @retval None
+  */
+void BusFault_Handler(void)
+{
+ 80010f4:	b480      	push	{r7}
+ 80010f6:	af00      	add	r7, sp, #0
+  /* Go to infinite loop when Bus Fault exception occurs */
+  while (1)
+  {
+  }
+ 80010f8:	e7fe      	b.n	80010f8 <BusFault_Handler+0x4>
+ 80010fa:	bf00      	nop
+
+080010fc <UsageFault_Handler>:
+  * @brief  This function handles Usage Fault exception.
+  * @param  None
+  * @retval None
+  */
+void UsageFault_Handler(void)
+{
+ 80010fc:	b480      	push	{r7}
+ 80010fe:	af00      	add	r7, sp, #0
+  /* Go to infinite loop when Usage Fault exception occurs */
+  while (1)
+  {
+  }
+ 8001100:	e7fe      	b.n	8001100 <UsageFault_Handler+0x4>
+ 8001102:	bf00      	nop
+
+08001104 <SVC_Handler>:
+  * @brief  This function handles SVCall exception.
+  * @param  None
+  * @retval None
+  */
+void SVC_Handler(void)
+{
+ 8001104:	b480      	push	{r7}
+ 8001106:	af00      	add	r7, sp, #0
+}
+ 8001108:	bf00      	nop
+ 800110a:	46bd      	mov	sp, r7
+ 800110c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001110:	4770      	bx	lr
+ 8001112:	bf00      	nop
+
+08001114 <DebugMon_Handler>:
+  * @brief  This function handles Debug Monitor exception.
+  * @param  None
+  * @retval None
+  */
+void DebugMon_Handler(void)
+{
+ 8001114:	b480      	push	{r7}
+ 8001116:	af00      	add	r7, sp, #0
+}
+ 8001118:	bf00      	nop
+ 800111a:	46bd      	mov	sp, r7
+ 800111c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001120:	4770      	bx	lr
+ 8001122:	bf00      	nop
+
+08001124 <PendSV_Handler>:
+  * @brief  This function handles PendSVC exception.
+  * @param  None
+  * @retval None
+  */
+void PendSV_Handler(void)
+{
+ 8001124:	b480      	push	{r7}
+ 8001126:	af00      	add	r7, sp, #0
+}
+ 8001128:	bf00      	nop
+ 800112a:	46bd      	mov	sp, r7
+ 800112c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001130:	4770      	bx	lr
+ 8001132:	bf00      	nop
+
+08001134 <SysTick_Handler>:
+  * @brief  This function handles SysTick Handler.
+  * @param  None
+  * @retval None
+  */
+void SysTick_Handler(void)
+{
+ 8001134:	b480      	push	{r7}
+ 8001136:	af00      	add	r7, sp, #0
+/*  TimingDelay_Decrement(); */
+}
+ 8001138:	bf00      	nop
+ 800113a:	46bd      	mov	sp, r7
+ 800113c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001140:	4770      	bx	lr
+ 8001142:	bf00      	nop
+
+08001144 <SystemInit>:
+  *         SystemFrequency variable.
+  * @param  None
+  * @retval None
+  */
+void SystemInit(void)
+{
+ 8001144:	b580      	push	{r7, lr}
+ 8001146:	af00      	add	r7, sp, #0
+  /* FPU settings ------------------------------------------------------------*/
+  #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+ 8001148:	4a16      	ldr	r2, [pc, #88]	; (80011a4 <SystemInit+0x60>)
+ 800114a:	4b16      	ldr	r3, [pc, #88]	; (80011a4 <SystemInit+0x60>)
+ 800114c:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8001150:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
+ 8001154:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+  #endif
+  /* Reset the RCC clock configuration to the default reset state ------------*/
+  /* Set HSION bit */
+  RCC->CR |= (uint32_t)0x00000001;
+ 8001158:	4a13      	ldr	r2, [pc, #76]	; (80011a8 <SystemInit+0x64>)
+ 800115a:	4b13      	ldr	r3, [pc, #76]	; (80011a8 <SystemInit+0x64>)
+ 800115c:	681b      	ldr	r3, [r3, #0]
+ 800115e:	f043 0301 	orr.w	r3, r3, #1
+ 8001162:	6013      	str	r3, [r2, #0]
+
+  /* Reset CFGR register */
+  RCC->CFGR = 0x00000000;
+ 8001164:	4b10      	ldr	r3, [pc, #64]	; (80011a8 <SystemInit+0x64>)
+ 8001166:	2200      	movs	r2, #0
+ 8001168:	609a      	str	r2, [r3, #8]
+
+  /* Reset HSEON, CSSON and PLLON bits */
+  RCC->CR &= (uint32_t)0xFEF6FFFF;
+ 800116a:	4a0f      	ldr	r2, [pc, #60]	; (80011a8 <SystemInit+0x64>)
+ 800116c:	4b0e      	ldr	r3, [pc, #56]	; (80011a8 <SystemInit+0x64>)
+ 800116e:	681b      	ldr	r3, [r3, #0]
+ 8001170:	f023 7384 	bic.w	r3, r3, #17301504	; 0x1080000
+ 8001174:	f423 3380 	bic.w	r3, r3, #65536	; 0x10000
+ 8001178:	6013      	str	r3, [r2, #0]
+
+  /* Reset PLLCFGR register */
+  RCC->PLLCFGR = 0x24003010;
+ 800117a:	4b0b      	ldr	r3, [pc, #44]	; (80011a8 <SystemInit+0x64>)
+ 800117c:	4a0b      	ldr	r2, [pc, #44]	; (80011ac <SystemInit+0x68>)
+ 800117e:	605a      	str	r2, [r3, #4]
+
+  /* Reset HSEBYP bit */
+  RCC->CR &= (uint32_t)0xFFFBFFFF;
+ 8001180:	4a09      	ldr	r2, [pc, #36]	; (80011a8 <SystemInit+0x64>)
+ 8001182:	4b09      	ldr	r3, [pc, #36]	; (80011a8 <SystemInit+0x64>)
+ 8001184:	681b      	ldr	r3, [r3, #0]
+ 8001186:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
+ 800118a:	6013      	str	r3, [r2, #0]
+
+  /* Disable all interrupts */
+  RCC->CIR = 0x00000000;
+ 800118c:	4b06      	ldr	r3, [pc, #24]	; (80011a8 <SystemInit+0x64>)
+ 800118e:	2200      	movs	r2, #0
+ 8001190:	60da      	str	r2, [r3, #12]
+  SystemInit_ExtMemCtl(); 
+#endif /* DATA_IN_ExtSRAM */
+         
+  /* Configure the System clock source, PLL Multiplier and Divider factors, 
+     AHB/APBx prescalers and Flash settings ----------------------------------*/
+  SetSysClock();
+ 8001192:	f000 f80d 	bl	80011b0 <SetSysClock>
+
+  /* Configure the Vector Table location add offset address ------------------*/
+#ifdef VECT_TAB_SRAM
+  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+#else
+  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+ 8001196:	4b03      	ldr	r3, [pc, #12]	; (80011a4 <SystemInit+0x60>)
+ 8001198:	f04f 6200 	mov.w	r2, #134217728	; 0x8000000
+ 800119c:	609a      	str	r2, [r3, #8]
+#endif
+}
+ 800119e:	bf00      	nop
+ 80011a0:	bd80      	pop	{r7, pc}
+ 80011a2:	bf00      	nop
+ 80011a4:	e000ed00 	.word	0xe000ed00
+ 80011a8:	40023800 	.word	0x40023800
+ 80011ac:	24003010 	.word	0x24003010
+
+080011b0 <SetSysClock>:
+  *         is reset to the default reset state (done in SystemInit() function).   
+  * @param  None
+  * @retval None
+  */
+static void SetSysClock(void)
+{
+ 80011b0:	b480      	push	{r7}
+ 80011b2:	b083      	sub	sp, #12
+ 80011b4:	af00      	add	r7, sp, #0
+/******************************************************************************/
+/*            PLL (clocked by HSE) used as System clock source                */
+/******************************************************************************/
+  __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 80011b6:	2300      	movs	r3, #0
+ 80011b8:	607b      	str	r3, [r7, #4]
+ 80011ba:	2300      	movs	r3, #0
+ 80011bc:	603b      	str	r3, [r7, #0]
+  
+  /* Enable HSE */
+  RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 80011be:	4a36      	ldr	r2, [pc, #216]	; (8001298 <SetSysClock+0xe8>)
+ 80011c0:	4b35      	ldr	r3, [pc, #212]	; (8001298 <SetSysClock+0xe8>)
+ 80011c2:	681b      	ldr	r3, [r3, #0]
+ 80011c4:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 80011c8:	6013      	str	r3, [r2, #0]
+ 
+  /* Wait till HSE is ready and if Time out is reached exit */
+  do
+  {
+    HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 80011ca:	4b33      	ldr	r3, [pc, #204]	; (8001298 <SetSysClock+0xe8>)
+ 80011cc:	681b      	ldr	r3, [r3, #0]
+ 80011ce:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 80011d2:	603b      	str	r3, [r7, #0]
+    StartUpCounter++;
+ 80011d4:	687b      	ldr	r3, [r7, #4]
+ 80011d6:	3301      	adds	r3, #1
+ 80011d8:	607b      	str	r3, [r7, #4]
+  } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 80011da:	683b      	ldr	r3, [r7, #0]
+ 80011dc:	2b00      	cmp	r3, #0
+ 80011de:	d103      	bne.n	80011e8 <SetSysClock+0x38>
+ 80011e0:	687b      	ldr	r3, [r7, #4]
+ 80011e2:	f5b3 6fa0 	cmp.w	r3, #1280	; 0x500
+ 80011e6:	d1f0      	bne.n	80011ca <SetSysClock+0x1a>
+
+  if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 80011e8:	4b2b      	ldr	r3, [pc, #172]	; (8001298 <SetSysClock+0xe8>)
+ 80011ea:	681b      	ldr	r3, [r3, #0]
+ 80011ec:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 80011f0:	2b00      	cmp	r3, #0
+ 80011f2:	d002      	beq.n	80011fa <SetSysClock+0x4a>
+  {
+    HSEStatus = (uint32_t)0x01;
+ 80011f4:	2301      	movs	r3, #1
+ 80011f6:	603b      	str	r3, [r7, #0]
+ 80011f8:	e001      	b.n	80011fe <SetSysClock+0x4e>
+  }
+  else
+  {
+    HSEStatus = (uint32_t)0x00;
+ 80011fa:	2300      	movs	r3, #0
+ 80011fc:	603b      	str	r3, [r7, #0]
+  }
+
+  if (HSEStatus == (uint32_t)0x01)
+ 80011fe:	683b      	ldr	r3, [r7, #0]
+ 8001200:	2b01      	cmp	r3, #1
+ 8001202:	d142      	bne.n	800128a <SetSysClock+0xda>
+  {
+    /* Select regulator voltage output Scale 1 mode, System frequency up to 168 MHz */
+    RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+ 8001204:	4a24      	ldr	r2, [pc, #144]	; (8001298 <SetSysClock+0xe8>)
+ 8001206:	4b24      	ldr	r3, [pc, #144]	; (8001298 <SetSysClock+0xe8>)
+ 8001208:	6c1b      	ldr	r3, [r3, #64]	; 0x40
+ 800120a:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
+ 800120e:	6413      	str	r3, [r2, #64]	; 0x40
+    PWR->CR |= PWR_CR_VOS;
+ 8001210:	4a22      	ldr	r2, [pc, #136]	; (800129c <SetSysClock+0xec>)
+ 8001212:	4b22      	ldr	r3, [pc, #136]	; (800129c <SetSysClock+0xec>)
+ 8001214:	681b      	ldr	r3, [r3, #0]
+ 8001216:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
+ 800121a:	6013      	str	r3, [r2, #0]
+
+    /* HCLK = SYSCLK / 1*/
+    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+ 800121c:	4a1e      	ldr	r2, [pc, #120]	; (8001298 <SetSysClock+0xe8>)
+ 800121e:	4b1e      	ldr	r3, [pc, #120]	; (8001298 <SetSysClock+0xe8>)
+ 8001220:	689b      	ldr	r3, [r3, #8]
+ 8001222:	6093      	str	r3, [r2, #8]
+      
+    /* PCLK2 = HCLK / 2*/
+    RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;
+ 8001224:	4a1c      	ldr	r2, [pc, #112]	; (8001298 <SetSysClock+0xe8>)
+ 8001226:	4b1c      	ldr	r3, [pc, #112]	; (8001298 <SetSysClock+0xe8>)
+ 8001228:	689b      	ldr	r3, [r3, #8]
+ 800122a:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
+ 800122e:	6093      	str	r3, [r2, #8]
+    
+    /* PCLK1 = HCLK / 4*/
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;
+ 8001230:	4a19      	ldr	r2, [pc, #100]	; (8001298 <SetSysClock+0xe8>)
+ 8001232:	4b19      	ldr	r3, [pc, #100]	; (8001298 <SetSysClock+0xe8>)
+ 8001234:	689b      	ldr	r3, [r3, #8]
+ 8001236:	f443 53a0 	orr.w	r3, r3, #5120	; 0x1400
+ 800123a:	6093      	str	r3, [r2, #8]
+
+    /* Configure the main PLL */
+    RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
+ 800123c:	4b16      	ldr	r3, [pc, #88]	; (8001298 <SetSysClock+0xe8>)
+ 800123e:	4a18      	ldr	r2, [pc, #96]	; (80012a0 <SetSysClock+0xf0>)
+ 8001240:	605a      	str	r2, [r3, #4]
+                   (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
+
+    /* Enable the main PLL */
+    RCC->CR |= RCC_CR_PLLON;
+ 8001242:	4a15      	ldr	r2, [pc, #84]	; (8001298 <SetSysClock+0xe8>)
+ 8001244:	4b14      	ldr	r3, [pc, #80]	; (8001298 <SetSysClock+0xe8>)
+ 8001246:	681b      	ldr	r3, [r3, #0]
+ 8001248:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
+ 800124c:	6013      	str	r3, [r2, #0]
+
+    /* Wait till the main PLL is ready */
+    while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 800124e:	bf00      	nop
+ 8001250:	4b11      	ldr	r3, [pc, #68]	; (8001298 <SetSysClock+0xe8>)
+ 8001252:	681b      	ldr	r3, [r3, #0]
+ 8001254:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
+ 8001258:	2b00      	cmp	r3, #0
+ 800125a:	d0f9      	beq.n	8001250 <SetSysClock+0xa0>
+    {
+    }
+   
+    /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+    FLASH->ACR = FLASH_ACR_PRFTEN |FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;
+ 800125c:	4b11      	ldr	r3, [pc, #68]	; (80012a4 <SetSysClock+0xf4>)
+ 800125e:	f240 7205 	movw	r2, #1797	; 0x705
+ 8001262:	601a      	str	r2, [r3, #0]
+
+    /* Select the main PLL as system clock source */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 8001264:	4a0c      	ldr	r2, [pc, #48]	; (8001298 <SetSysClock+0xe8>)
+ 8001266:	4b0c      	ldr	r3, [pc, #48]	; (8001298 <SetSysClock+0xe8>)
+ 8001268:	689b      	ldr	r3, [r3, #8]
+ 800126a:	f023 0303 	bic.w	r3, r3, #3
+ 800126e:	6093      	str	r3, [r2, #8]
+    RCC->CFGR |= RCC_CFGR_SW_PLL;
+ 8001270:	4a09      	ldr	r2, [pc, #36]	; (8001298 <SetSysClock+0xe8>)
+ 8001272:	4b09      	ldr	r3, [pc, #36]	; (8001298 <SetSysClock+0xe8>)
+ 8001274:	689b      	ldr	r3, [r3, #8]
+ 8001276:	f043 0302 	orr.w	r3, r3, #2
+ 800127a:	6093      	str	r3, [r2, #8]
+
+    /* Wait till the main PLL is used as system clock source */
+    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
+ 800127c:	bf00      	nop
+ 800127e:	4b06      	ldr	r3, [pc, #24]	; (8001298 <SetSysClock+0xe8>)
+ 8001280:	689b      	ldr	r3, [r3, #8]
+ 8001282:	f003 030c 	and.w	r3, r3, #12
+ 8001286:	2b08      	cmp	r3, #8
+ 8001288:	d1f9      	bne.n	800127e <SetSysClock+0xce>
+  else
+  { /* If HSE fails to start-up, the application will have wrong clock
+         configuration. User can add here some code to deal with this error */
+  }
+
+}
+ 800128a:	bf00      	nop
+ 800128c:	370c      	adds	r7, #12
+ 800128e:	46bd      	mov	sp, r7
+ 8001290:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001294:	4770      	bx	lr
+ 8001296:	bf00      	nop
+ 8001298:	40023800 	.word	0x40023800
+ 800129c:	40007000 	.word	0x40007000
+ 80012a0:	07405419 	.word	0x07405419
+ 80012a4:	40023c00 	.word	0x40023c00
+
+080012a8 <_ZdlPvj>:
+ 80012a8:	f000 b825 	b.w	80012f6 <_ZdlPv>
+
+080012ac <__cxa_pure_virtual>:
+ 80012ac:	b508      	push	{r3, lr}
+ 80012ae:	f000 f81d 	bl	80012ec <_ZSt9terminatev>
+
+080012b2 <_Znwj>:
+ 80012b2:	b510      	push	{r4, lr}
+ 80012b4:	2800      	cmp	r0, #0
+ 80012b6:	bf14      	ite	ne
+ 80012b8:	4604      	movne	r4, r0
+ 80012ba:	2401      	moveq	r4, #1
+ 80012bc:	4620      	mov	r0, r4
+ 80012be:	f000 f99d 	bl	80015fc <malloc>
+ 80012c2:	b930      	cbnz	r0, 80012d2 <_Znwj+0x20>
+ 80012c4:	f000 f81c 	bl	8001300 <_ZSt15get_new_handlerv>
+ 80012c8:	b908      	cbnz	r0, 80012ce <_Znwj+0x1c>
+ 80012ca:	f000 f969 	bl	80015a0 <abort>
+ 80012ce:	4780      	blx	r0
+ 80012d0:	e7f4      	b.n	80012bc <_Znwj+0xa>
+ 80012d2:	bd10      	pop	{r4, pc}
+
+080012d4 <_ZN10__cxxabiv111__terminateEPFvvE>:
+ 80012d4:	b508      	push	{r3, lr}
+ 80012d6:	4780      	blx	r0
+ 80012d8:	f000 f962 	bl	80015a0 <abort>
+
+080012dc <_ZSt13get_terminatev>:
+ 80012dc:	4b02      	ldr	r3, [pc, #8]	; (80012e8 <_ZSt13get_terminatev+0xc>)
+ 80012de:	6818      	ldr	r0, [r3, #0]
+ 80012e0:	f3bf 8f5f 	dmb	sy
+ 80012e4:	4770      	bx	lr
+ 80012e6:	bf00      	nop
+ 80012e8:	20000000 	.word	0x20000000
+
+080012ec <_ZSt9terminatev>:
+ 80012ec:	b508      	push	{r3, lr}
+ 80012ee:	f7ff fff5 	bl	80012dc <_ZSt13get_terminatev>
+ 80012f2:	f7ff ffef 	bl	80012d4 <_ZN10__cxxabiv111__terminateEPFvvE>
+
+080012f6 <_ZdlPv>:
+ 80012f6:	f000 b989 	b.w	800160c <free>
+
+080012fa <_ZSt17__throw_bad_allocv>:
+ 80012fa:	b508      	push	{r3, lr}
+ 80012fc:	f000 f950 	bl	80015a0 <abort>
+
+08001300 <_ZSt15get_new_handlerv>:
+ 8001300:	4b02      	ldr	r3, [pc, #8]	; (800130c <_ZSt15get_new_handlerv+0xc>)
+ 8001302:	6818      	ldr	r0, [r3, #0]
+ 8001304:	f3bf 8f5f 	dmb	sy
+ 8001308:	4770      	bx	lr
+ 800130a:	bf00      	nop
+ 800130c:	20000084 	.word	0x20000084
+
+08001310 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj>:
+ 8001310:	4b24      	ldr	r3, [pc, #144]	; (80013a4 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0x94>)
+ 8001312:	681a      	ldr	r2, [r3, #0]
+ 8001314:	07d0      	lsls	r0, r2, #31
+ 8001316:	bf5c      	itt	pl
+ 8001318:	2201      	movpl	r2, #1
+ 800131a:	601a      	strpl	r2, [r3, #0]
+ 800131c:	4b22      	ldr	r3, [pc, #136]	; (80013a8 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0x98>)
+ 800131e:	681a      	ldr	r2, [r3, #0]
+ 8001320:	07d1      	lsls	r1, r2, #31
+ 8001322:	bf5c      	itt	pl
+ 8001324:	2201      	movpl	r2, #1
+ 8001326:	601a      	strpl	r2, [r3, #0]
+ 8001328:	4b20      	ldr	r3, [pc, #128]	; (80013ac <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0x9c>)
+ 800132a:	681a      	ldr	r2, [r3, #0]
+ 800132c:	07d2      	lsls	r2, r2, #31
+ 800132e:	bf5c      	itt	pl
+ 8001330:	2201      	movpl	r2, #1
+ 8001332:	601a      	strpl	r2, [r3, #0]
+ 8001334:	4b1e      	ldr	r3, [pc, #120]	; (80013b0 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xa0>)
+ 8001336:	681a      	ldr	r2, [r3, #0]
+ 8001338:	07d0      	lsls	r0, r2, #31
+ 800133a:	bf5c      	itt	pl
+ 800133c:	2201      	movpl	r2, #1
+ 800133e:	601a      	strpl	r2, [r3, #0]
+ 8001340:	4b1c      	ldr	r3, [pc, #112]	; (80013b4 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xa4>)
+ 8001342:	681a      	ldr	r2, [r3, #0]
+ 8001344:	07d1      	lsls	r1, r2, #31
+ 8001346:	bf5c      	itt	pl
+ 8001348:	2201      	movpl	r2, #1
+ 800134a:	601a      	strpl	r2, [r3, #0]
+ 800134c:	4b1a      	ldr	r3, [pc, #104]	; (80013b8 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xa8>)
+ 800134e:	681a      	ldr	r2, [r3, #0]
+ 8001350:	07d2      	lsls	r2, r2, #31
+ 8001352:	bf5c      	itt	pl
+ 8001354:	2201      	movpl	r2, #1
+ 8001356:	601a      	strpl	r2, [r3, #0]
+ 8001358:	4b18      	ldr	r3, [pc, #96]	; (80013bc <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xac>)
+ 800135a:	681a      	ldr	r2, [r3, #0]
+ 800135c:	07d0      	lsls	r0, r2, #31
+ 800135e:	bf5c      	itt	pl
+ 8001360:	2201      	movpl	r2, #1
+ 8001362:	601a      	strpl	r2, [r3, #0]
+ 8001364:	4b16      	ldr	r3, [pc, #88]	; (80013c0 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xb0>)
+ 8001366:	681a      	ldr	r2, [r3, #0]
+ 8001368:	07d1      	lsls	r1, r2, #31
+ 800136a:	bf5c      	itt	pl
+ 800136c:	2201      	movpl	r2, #1
+ 800136e:	601a      	strpl	r2, [r3, #0]
+ 8001370:	4b14      	ldr	r3, [pc, #80]	; (80013c4 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xb4>)
+ 8001372:	681a      	ldr	r2, [r3, #0]
+ 8001374:	07d2      	lsls	r2, r2, #31
+ 8001376:	bf5c      	itt	pl
+ 8001378:	2201      	movpl	r2, #1
+ 800137a:	601a      	strpl	r2, [r3, #0]
+ 800137c:	4b12      	ldr	r3, [pc, #72]	; (80013c8 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xb8>)
+ 800137e:	681a      	ldr	r2, [r3, #0]
+ 8001380:	07d0      	lsls	r0, r2, #31
+ 8001382:	bf5c      	itt	pl
+ 8001384:	2201      	movpl	r2, #1
+ 8001386:	601a      	strpl	r2, [r3, #0]
+ 8001388:	4b10      	ldr	r3, [pc, #64]	; (80013cc <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xbc>)
+ 800138a:	681a      	ldr	r2, [r3, #0]
+ 800138c:	07d1      	lsls	r1, r2, #31
+ 800138e:	bf5c      	itt	pl
+ 8001390:	2201      	movpl	r2, #1
+ 8001392:	601a      	strpl	r2, [r3, #0]
+ 8001394:	4b0e      	ldr	r3, [pc, #56]	; (80013d0 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKSsj+0xc0>)
+ 8001396:	681a      	ldr	r2, [r3, #0]
+ 8001398:	07d2      	lsls	r2, r2, #31
+ 800139a:	bf5c      	itt	pl
+ 800139c:	2201      	movpl	r2, #1
+ 800139e:	601a      	strpl	r2, [r3, #0]
+ 80013a0:	4770      	bx	lr
+ 80013a2:	bf00      	nop
+ 80013a4:	200000b4 	.word	0x200000b4
+ 80013a8:	200000b0 	.word	0x200000b0
+ 80013ac:	200000ac 	.word	0x200000ac
+ 80013b0:	200000a8 	.word	0x200000a8
+ 80013b4:	200000a4 	.word	0x200000a4
+ 80013b8:	200000a0 	.word	0x200000a0
+ 80013bc:	2000009c 	.word	0x2000009c
+ 80013c0:	20000098 	.word	0x20000098
+ 80013c4:	20000094 	.word	0x20000094
+ 80013c8:	20000090 	.word	0x20000090
+ 80013cc:	2000008c 	.word	0x2000008c
+ 80013d0:	20000088 	.word	0x20000088
+
+080013d4 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj>:
+ 80013d4:	4b24      	ldr	r3, [pc, #144]	; (8001468 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0x94>)
+ 80013d6:	681a      	ldr	r2, [r3, #0]
+ 80013d8:	07d0      	lsls	r0, r2, #31
+ 80013da:	bf5c      	itt	pl
+ 80013dc:	2201      	movpl	r2, #1
+ 80013de:	601a      	strpl	r2, [r3, #0]
+ 80013e0:	4b22      	ldr	r3, [pc, #136]	; (800146c <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0x98>)
+ 80013e2:	681a      	ldr	r2, [r3, #0]
+ 80013e4:	07d1      	lsls	r1, r2, #31
+ 80013e6:	bf5c      	itt	pl
+ 80013e8:	2201      	movpl	r2, #1
+ 80013ea:	601a      	strpl	r2, [r3, #0]
+ 80013ec:	4b20      	ldr	r3, [pc, #128]	; (8001470 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0x9c>)
+ 80013ee:	681a      	ldr	r2, [r3, #0]
+ 80013f0:	07d2      	lsls	r2, r2, #31
+ 80013f2:	bf5c      	itt	pl
+ 80013f4:	2201      	movpl	r2, #1
+ 80013f6:	601a      	strpl	r2, [r3, #0]
+ 80013f8:	4b1e      	ldr	r3, [pc, #120]	; (8001474 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xa0>)
+ 80013fa:	681a      	ldr	r2, [r3, #0]
+ 80013fc:	07d0      	lsls	r0, r2, #31
+ 80013fe:	bf5c      	itt	pl
+ 8001400:	2201      	movpl	r2, #1
+ 8001402:	601a      	strpl	r2, [r3, #0]
+ 8001404:	4b1c      	ldr	r3, [pc, #112]	; (8001478 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xa4>)
+ 8001406:	681a      	ldr	r2, [r3, #0]
+ 8001408:	07d1      	lsls	r1, r2, #31
+ 800140a:	bf5c      	itt	pl
+ 800140c:	2201      	movpl	r2, #1
+ 800140e:	601a      	strpl	r2, [r3, #0]
+ 8001410:	4b1a      	ldr	r3, [pc, #104]	; (800147c <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xa8>)
+ 8001412:	681a      	ldr	r2, [r3, #0]
+ 8001414:	07d2      	lsls	r2, r2, #31
+ 8001416:	bf5c      	itt	pl
+ 8001418:	2201      	movpl	r2, #1
+ 800141a:	601a      	strpl	r2, [r3, #0]
+ 800141c:	4b18      	ldr	r3, [pc, #96]	; (8001480 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xac>)
+ 800141e:	681a      	ldr	r2, [r3, #0]
+ 8001420:	07d0      	lsls	r0, r2, #31
+ 8001422:	bf5c      	itt	pl
+ 8001424:	2201      	movpl	r2, #1
+ 8001426:	601a      	strpl	r2, [r3, #0]
+ 8001428:	4b16      	ldr	r3, [pc, #88]	; (8001484 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xb0>)
+ 800142a:	681a      	ldr	r2, [r3, #0]
+ 800142c:	07d1      	lsls	r1, r2, #31
+ 800142e:	bf5c      	itt	pl
+ 8001430:	2201      	movpl	r2, #1
+ 8001432:	601a      	strpl	r2, [r3, #0]
+ 8001434:	4b14      	ldr	r3, [pc, #80]	; (8001488 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xb4>)
+ 8001436:	681a      	ldr	r2, [r3, #0]
+ 8001438:	07d2      	lsls	r2, r2, #31
+ 800143a:	bf5c      	itt	pl
+ 800143c:	2201      	movpl	r2, #1
+ 800143e:	601a      	strpl	r2, [r3, #0]
+ 8001440:	4b12      	ldr	r3, [pc, #72]	; (800148c <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xb8>)
+ 8001442:	681a      	ldr	r2, [r3, #0]
+ 8001444:	07d0      	lsls	r0, r2, #31
+ 8001446:	bf5c      	itt	pl
+ 8001448:	2201      	movpl	r2, #1
+ 800144a:	601a      	strpl	r2, [r3, #0]
+ 800144c:	4b10      	ldr	r3, [pc, #64]	; (8001490 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xbc>)
+ 800144e:	681a      	ldr	r2, [r3, #0]
+ 8001450:	07d1      	lsls	r1, r2, #31
+ 8001452:	bf5c      	itt	pl
+ 8001454:	2201      	movpl	r2, #1
+ 8001456:	601a      	strpl	r2, [r3, #0]
+ 8001458:	4b0e      	ldr	r3, [pc, #56]	; (8001494 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKSsj+0xc0>)
+ 800145a:	681a      	ldr	r2, [r3, #0]
+ 800145c:	07d2      	lsls	r2, r2, #31
+ 800145e:	bf5c      	itt	pl
+ 8001460:	2201      	movpl	r2, #1
+ 8001462:	601a      	strpl	r2, [r3, #0]
+ 8001464:	4770      	bx	lr
+ 8001466:	bf00      	nop
+ 8001468:	200000e4 	.word	0x200000e4
+ 800146c:	200000e0 	.word	0x200000e0
+ 8001470:	200000dc 	.word	0x200000dc
+ 8001474:	200000d8 	.word	0x200000d8
+ 8001478:	200000d4 	.word	0x200000d4
+ 800147c:	200000d0 	.word	0x200000d0
+ 8001480:	200000cc 	.word	0x200000cc
+ 8001484:	200000c8 	.word	0x200000c8
+ 8001488:	200000c4 	.word	0x200000c4
+ 800148c:	200000c0 	.word	0x200000c0
+ 8001490:	200000bc 	.word	0x200000bc
+ 8001494:	200000b8 	.word	0x200000b8
+
+08001498 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj>:
+ 8001498:	4b18      	ldr	r3, [pc, #96]	; (80014fc <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x64>)
+ 800149a:	681a      	ldr	r2, [r3, #0]
+ 800149c:	07d1      	lsls	r1, r2, #31
+ 800149e:	bf5c      	itt	pl
+ 80014a0:	2201      	movpl	r2, #1
+ 80014a2:	601a      	strpl	r2, [r3, #0]
+ 80014a4:	4b16      	ldr	r3, [pc, #88]	; (8001500 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x68>)
+ 80014a6:	681a      	ldr	r2, [r3, #0]
+ 80014a8:	07d2      	lsls	r2, r2, #31
+ 80014aa:	bf5c      	itt	pl
+ 80014ac:	2201      	movpl	r2, #1
+ 80014ae:	601a      	strpl	r2, [r3, #0]
+ 80014b0:	4b14      	ldr	r3, [pc, #80]	; (8001504 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x6c>)
+ 80014b2:	681a      	ldr	r2, [r3, #0]
+ 80014b4:	07d0      	lsls	r0, r2, #31
+ 80014b6:	bf5c      	itt	pl
+ 80014b8:	2201      	movpl	r2, #1
+ 80014ba:	601a      	strpl	r2, [r3, #0]
+ 80014bc:	4b12      	ldr	r3, [pc, #72]	; (8001508 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x70>)
+ 80014be:	681a      	ldr	r2, [r3, #0]
+ 80014c0:	07d1      	lsls	r1, r2, #31
+ 80014c2:	bf5c      	itt	pl
+ 80014c4:	2201      	movpl	r2, #1
+ 80014c6:	601a      	strpl	r2, [r3, #0]
+ 80014c8:	4b10      	ldr	r3, [pc, #64]	; (800150c <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x74>)
+ 80014ca:	681a      	ldr	r2, [r3, #0]
+ 80014cc:	07d2      	lsls	r2, r2, #31
+ 80014ce:	bf5c      	itt	pl
+ 80014d0:	2201      	movpl	r2, #1
+ 80014d2:	601a      	strpl	r2, [r3, #0]
+ 80014d4:	4b0e      	ldr	r3, [pc, #56]	; (8001510 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x78>)
+ 80014d6:	681a      	ldr	r2, [r3, #0]
+ 80014d8:	07d0      	lsls	r0, r2, #31
+ 80014da:	bf5c      	itt	pl
+ 80014dc:	2201      	movpl	r2, #1
+ 80014de:	601a      	strpl	r2, [r3, #0]
+ 80014e0:	4b0c      	ldr	r3, [pc, #48]	; (8001514 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x7c>)
+ 80014e2:	681a      	ldr	r2, [r3, #0]
+ 80014e4:	07d1      	lsls	r1, r2, #31
+ 80014e6:	bf5c      	itt	pl
+ 80014e8:	2201      	movpl	r2, #1
+ 80014ea:	601a      	strpl	r2, [r3, #0]
+ 80014ec:	4b0a      	ldr	r3, [pc, #40]	; (8001518 <_GLOBAL__sub_I__ZNSt12ctype_bynameIwEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x80>)
+ 80014ee:	681a      	ldr	r2, [r3, #0]
+ 80014f0:	07d2      	lsls	r2, r2, #31
+ 80014f2:	bf5c      	itt	pl
+ 80014f4:	2201      	movpl	r2, #1
+ 80014f6:	601a      	strpl	r2, [r3, #0]
+ 80014f8:	4770      	bx	lr
+ 80014fa:	bf00      	nop
+ 80014fc:	20000104 	.word	0x20000104
+ 8001500:	20000100 	.word	0x20000100
+ 8001504:	200000fc 	.word	0x200000fc
+ 8001508:	200000f8 	.word	0x200000f8
+ 800150c:	200000f4 	.word	0x200000f4
+ 8001510:	200000f0 	.word	0x200000f0
+ 8001514:	200000ec 	.word	0x200000ec
+ 8001518:	200000e8 	.word	0x200000e8
+
+0800151c <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj>:
+ 800151c:	4b18      	ldr	r3, [pc, #96]	; (8001580 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x64>)
+ 800151e:	681a      	ldr	r2, [r3, #0]
+ 8001520:	07d1      	lsls	r1, r2, #31
+ 8001522:	bf5c      	itt	pl
+ 8001524:	2201      	movpl	r2, #1
+ 8001526:	601a      	strpl	r2, [r3, #0]
+ 8001528:	4b16      	ldr	r3, [pc, #88]	; (8001584 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x68>)
+ 800152a:	681a      	ldr	r2, [r3, #0]
+ 800152c:	07d2      	lsls	r2, r2, #31
+ 800152e:	bf5c      	itt	pl
+ 8001530:	2201      	movpl	r2, #1
+ 8001532:	601a      	strpl	r2, [r3, #0]
+ 8001534:	4b14      	ldr	r3, [pc, #80]	; (8001588 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x6c>)
+ 8001536:	681a      	ldr	r2, [r3, #0]
+ 8001538:	07d0      	lsls	r0, r2, #31
+ 800153a:	bf5c      	itt	pl
+ 800153c:	2201      	movpl	r2, #1
+ 800153e:	601a      	strpl	r2, [r3, #0]
+ 8001540:	4b12      	ldr	r3, [pc, #72]	; (800158c <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x70>)
+ 8001542:	681a      	ldr	r2, [r3, #0]
+ 8001544:	07d1      	lsls	r1, r2, #31
+ 8001546:	bf5c      	itt	pl
+ 8001548:	2201      	movpl	r2, #1
+ 800154a:	601a      	strpl	r2, [r3, #0]
+ 800154c:	4b10      	ldr	r3, [pc, #64]	; (8001590 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x74>)
+ 800154e:	681a      	ldr	r2, [r3, #0]
+ 8001550:	07d2      	lsls	r2, r2, #31
+ 8001552:	bf5c      	itt	pl
+ 8001554:	2201      	movpl	r2, #1
+ 8001556:	601a      	strpl	r2, [r3, #0]
+ 8001558:	4b0e      	ldr	r3, [pc, #56]	; (8001594 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x78>)
+ 800155a:	681a      	ldr	r2, [r3, #0]
+ 800155c:	07d0      	lsls	r0, r2, #31
+ 800155e:	bf5c      	itt	pl
+ 8001560:	2201      	movpl	r2, #1
+ 8001562:	601a      	strpl	r2, [r3, #0]
+ 8001564:	4b0c      	ldr	r3, [pc, #48]	; (8001598 <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x7c>)
+ 8001566:	681a      	ldr	r2, [r3, #0]
+ 8001568:	07d1      	lsls	r1, r2, #31
+ 800156a:	bf5c      	itt	pl
+ 800156c:	2201      	movpl	r2, #1
+ 800156e:	601a      	strpl	r2, [r3, #0]
+ 8001570:	4b0a      	ldr	r3, [pc, #40]	; (800159c <_GLOBAL__sub_I__ZNSt12ctype_bynameIcEC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj+0x80>)
+ 8001572:	681a      	ldr	r2, [r3, #0]
+ 8001574:	07d2      	lsls	r2, r2, #31
+ 8001576:	bf5c      	itt	pl
+ 8001578:	2201      	movpl	r2, #1
+ 800157a:	601a      	strpl	r2, [r3, #0]
+ 800157c:	4770      	bx	lr
+ 800157e:	bf00      	nop
+ 8001580:	20000124 	.word	0x20000124
+ 8001584:	20000120 	.word	0x20000120
+ 8001588:	2000011c 	.word	0x2000011c
+ 800158c:	20000118 	.word	0x20000118
+ 8001590:	20000114 	.word	0x20000114
+ 8001594:	20000110 	.word	0x20000110
+ 8001598:	2000010c 	.word	0x2000010c
+ 800159c:	20000108 	.word	0x20000108
+
+080015a0 <abort>:
+ 80015a0:	b508      	push	{r3, lr}
+ 80015a2:	2006      	movs	r0, #6
+ 80015a4:	f000 f920 	bl	80017e8 <raise>
+ 80015a8:	2001      	movs	r0, #1
+ 80015aa:	f000 f959 	bl	8001860 <_exit>
+	...
+
+080015b0 <__libc_init_array>:
+ 80015b0:	b570      	push	{r4, r5, r6, lr}
+ 80015b2:	4b0e      	ldr	r3, [pc, #56]	; (80015ec <__libc_init_array+0x3c>)
+ 80015b4:	4c0e      	ldr	r4, [pc, #56]	; (80015f0 <__libc_init_array+0x40>)
+ 80015b6:	1ae4      	subs	r4, r4, r3
+ 80015b8:	10a4      	asrs	r4, r4, #2
+ 80015ba:	2500      	movs	r5, #0
+ 80015bc:	461e      	mov	r6, r3
+ 80015be:	42a5      	cmp	r5, r4
+ 80015c0:	d004      	beq.n	80015cc <__libc_init_array+0x1c>
+ 80015c2:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 80015c6:	4798      	blx	r3
+ 80015c8:	3501      	adds	r5, #1
+ 80015ca:	e7f8      	b.n	80015be <__libc_init_array+0xe>
+ 80015cc:	f000 f94a 	bl	8001864 <_init>
+ 80015d0:	4c08      	ldr	r4, [pc, #32]	; (80015f4 <__libc_init_array+0x44>)
+ 80015d2:	4b09      	ldr	r3, [pc, #36]	; (80015f8 <__libc_init_array+0x48>)
+ 80015d4:	1ae4      	subs	r4, r4, r3
+ 80015d6:	10a4      	asrs	r4, r4, #2
+ 80015d8:	2500      	movs	r5, #0
+ 80015da:	461e      	mov	r6, r3
+ 80015dc:	42a5      	cmp	r5, r4
+ 80015de:	d004      	beq.n	80015ea <__libc_init_array+0x3a>
+ 80015e0:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 80015e4:	4798      	blx	r3
+ 80015e6:	3501      	adds	r5, #1
+ 80015e8:	e7f8      	b.n	80015dc <__libc_init_array+0x2c>
+ 80015ea:	bd70      	pop	{r4, r5, r6, pc}
+ 80015ec:	08001950 	.word	0x08001950
+ 80015f0:	08001950 	.word	0x08001950
+ 80015f4:	08001964 	.word	0x08001964
+ 80015f8:	08001950 	.word	0x08001950
+
+080015fc <malloc>:
+ 80015fc:	4b02      	ldr	r3, [pc, #8]	; (8001608 <malloc+0xc>)
+ 80015fe:	4601      	mov	r1, r0
+ 8001600:	6818      	ldr	r0, [r3, #0]
+ 8001602:	f000 b859 	b.w	80016b8 <_malloc_r>
+ 8001606:	bf00      	nop
+ 8001608:	20000064 	.word	0x20000064
+
+0800160c <free>:
+ 800160c:	4b02      	ldr	r3, [pc, #8]	; (8001618 <free+0xc>)
+ 800160e:	4601      	mov	r1, r0
+ 8001610:	6818      	ldr	r0, [r3, #0]
+ 8001612:	f000 b803 	b.w	800161c <_free_r>
+ 8001616:	bf00      	nop
+ 8001618:	20000064 	.word	0x20000064
+
+0800161c <_free_r>:
+ 800161c:	b538      	push	{r3, r4, r5, lr}
+ 800161e:	4605      	mov	r5, r0
+ 8001620:	2900      	cmp	r1, #0
+ 8001622:	d046      	beq.n	80016b2 <_free_r+0x96>
+ 8001624:	f851 3c04 	ldr.w	r3, [r1, #-4]
+ 8001628:	1f0c      	subs	r4, r1, #4
+ 800162a:	2b00      	cmp	r3, #0
+ 800162c:	bfb8      	it	lt
+ 800162e:	18e4      	addlt	r4, r4, r3
+ 8001630:	f000 f8f6 	bl	8001820 <__malloc_lock>
+ 8001634:	4a1f      	ldr	r2, [pc, #124]	; (80016b4 <_free_r+0x98>)
+ 8001636:	6813      	ldr	r3, [r2, #0]
+ 8001638:	4611      	mov	r1, r2
+ 800163a:	b913      	cbnz	r3, 8001642 <_free_r+0x26>
+ 800163c:	6063      	str	r3, [r4, #4]
+ 800163e:	6014      	str	r4, [r2, #0]
+ 8001640:	e032      	b.n	80016a8 <_free_r+0x8c>
+ 8001642:	42a3      	cmp	r3, r4
+ 8001644:	d90e      	bls.n	8001664 <_free_r+0x48>
+ 8001646:	6822      	ldr	r2, [r4, #0]
+ 8001648:	18a0      	adds	r0, r4, r2
+ 800164a:	4283      	cmp	r3, r0
+ 800164c:	bf04      	itt	eq
+ 800164e:	6818      	ldreq	r0, [r3, #0]
+ 8001650:	685b      	ldreq	r3, [r3, #4]
+ 8001652:	6063      	str	r3, [r4, #4]
+ 8001654:	bf04      	itt	eq
+ 8001656:	1812      	addeq	r2, r2, r0
+ 8001658:	6022      	streq	r2, [r4, #0]
+ 800165a:	600c      	str	r4, [r1, #0]
+ 800165c:	e024      	b.n	80016a8 <_free_r+0x8c>
+ 800165e:	42a2      	cmp	r2, r4
+ 8001660:	d803      	bhi.n	800166a <_free_r+0x4e>
+ 8001662:	4613      	mov	r3, r2
+ 8001664:	685a      	ldr	r2, [r3, #4]
+ 8001666:	2a00      	cmp	r2, #0
+ 8001668:	d1f9      	bne.n	800165e <_free_r+0x42>
+ 800166a:	6818      	ldr	r0, [r3, #0]
+ 800166c:	1819      	adds	r1, r3, r0
+ 800166e:	42a1      	cmp	r1, r4
+ 8001670:	d10b      	bne.n	800168a <_free_r+0x6e>
+ 8001672:	6821      	ldr	r1, [r4, #0]
+ 8001674:	4401      	add	r1, r0
+ 8001676:	1858      	adds	r0, r3, r1
+ 8001678:	4282      	cmp	r2, r0
+ 800167a:	6019      	str	r1, [r3, #0]
+ 800167c:	d114      	bne.n	80016a8 <_free_r+0x8c>
+ 800167e:	6810      	ldr	r0, [r2, #0]
+ 8001680:	6852      	ldr	r2, [r2, #4]
+ 8001682:	605a      	str	r2, [r3, #4]
+ 8001684:	4401      	add	r1, r0
+ 8001686:	6019      	str	r1, [r3, #0]
+ 8001688:	e00e      	b.n	80016a8 <_free_r+0x8c>
+ 800168a:	d902      	bls.n	8001692 <_free_r+0x76>
+ 800168c:	230c      	movs	r3, #12
+ 800168e:	602b      	str	r3, [r5, #0]
+ 8001690:	e00a      	b.n	80016a8 <_free_r+0x8c>
+ 8001692:	6821      	ldr	r1, [r4, #0]
+ 8001694:	1860      	adds	r0, r4, r1
+ 8001696:	4282      	cmp	r2, r0
+ 8001698:	bf04      	itt	eq
+ 800169a:	6810      	ldreq	r0, [r2, #0]
+ 800169c:	6852      	ldreq	r2, [r2, #4]
+ 800169e:	6062      	str	r2, [r4, #4]
+ 80016a0:	bf04      	itt	eq
+ 80016a2:	1809      	addeq	r1, r1, r0
+ 80016a4:	6021      	streq	r1, [r4, #0]
+ 80016a6:	605c      	str	r4, [r3, #4]
+ 80016a8:	4628      	mov	r0, r5
+ 80016aa:	e8bd 4038 	ldmia.w	sp!, {r3, r4, r5, lr}
+ 80016ae:	f000 b8b8 	b.w	8001822 <__malloc_unlock>
+ 80016b2:	bd38      	pop	{r3, r4, r5, pc}
+ 80016b4:	2000012c 	.word	0x2000012c
+
+080016b8 <_malloc_r>:
+ 80016b8:	b570      	push	{r4, r5, r6, lr}
+ 80016ba:	1ccd      	adds	r5, r1, #3
+ 80016bc:	f025 0503 	bic.w	r5, r5, #3
+ 80016c0:	3508      	adds	r5, #8
+ 80016c2:	2d0c      	cmp	r5, #12
+ 80016c4:	bf38      	it	cc
+ 80016c6:	250c      	movcc	r5, #12
+ 80016c8:	2d00      	cmp	r5, #0
+ 80016ca:	4606      	mov	r6, r0
+ 80016cc:	db01      	blt.n	80016d2 <_malloc_r+0x1a>
+ 80016ce:	42a9      	cmp	r1, r5
+ 80016d0:	d902      	bls.n	80016d8 <_malloc_r+0x20>
+ 80016d2:	230c      	movs	r3, #12
+ 80016d4:	6033      	str	r3, [r6, #0]
+ 80016d6:	e046      	b.n	8001766 <_malloc_r+0xae>
+ 80016d8:	f000 f8a2 	bl	8001820 <__malloc_lock>
+ 80016dc:	4b23      	ldr	r3, [pc, #140]	; (800176c <_malloc_r+0xb4>)
+ 80016de:	681c      	ldr	r4, [r3, #0]
+ 80016e0:	461a      	mov	r2, r3
+ 80016e2:	4621      	mov	r1, r4
+ 80016e4:	b1a1      	cbz	r1, 8001710 <_malloc_r+0x58>
+ 80016e6:	680b      	ldr	r3, [r1, #0]
+ 80016e8:	1b5b      	subs	r3, r3, r5
+ 80016ea:	d40e      	bmi.n	800170a <_malloc_r+0x52>
+ 80016ec:	2b0b      	cmp	r3, #11
+ 80016ee:	d903      	bls.n	80016f8 <_malloc_r+0x40>
+ 80016f0:	600b      	str	r3, [r1, #0]
+ 80016f2:	18cc      	adds	r4, r1, r3
+ 80016f4:	50cd      	str	r5, [r1, r3]
+ 80016f6:	e01e      	b.n	8001736 <_malloc_r+0x7e>
+ 80016f8:	428c      	cmp	r4, r1
+ 80016fa:	bf0d      	iteet	eq
+ 80016fc:	6863      	ldreq	r3, [r4, #4]
+ 80016fe:	684b      	ldrne	r3, [r1, #4]
+ 8001700:	6063      	strne	r3, [r4, #4]
+ 8001702:	6013      	streq	r3, [r2, #0]
+ 8001704:	bf18      	it	ne
+ 8001706:	460c      	movne	r4, r1
+ 8001708:	e015      	b.n	8001736 <_malloc_r+0x7e>
+ 800170a:	460c      	mov	r4, r1
+ 800170c:	6849      	ldr	r1, [r1, #4]
+ 800170e:	e7e9      	b.n	80016e4 <_malloc_r+0x2c>
+ 8001710:	4c17      	ldr	r4, [pc, #92]	; (8001770 <_malloc_r+0xb8>)
+ 8001712:	6823      	ldr	r3, [r4, #0]
+ 8001714:	b91b      	cbnz	r3, 800171e <_malloc_r+0x66>
+ 8001716:	4630      	mov	r0, r6
+ 8001718:	f000 f82c 	bl	8001774 <_sbrk_r>
+ 800171c:	6020      	str	r0, [r4, #0]
+ 800171e:	4629      	mov	r1, r5
+ 8001720:	4630      	mov	r0, r6
+ 8001722:	f000 f827 	bl	8001774 <_sbrk_r>
+ 8001726:	1c43      	adds	r3, r0, #1
+ 8001728:	d018      	beq.n	800175c <_malloc_r+0xa4>
+ 800172a:	1cc4      	adds	r4, r0, #3
+ 800172c:	f024 0403 	bic.w	r4, r4, #3
+ 8001730:	42a0      	cmp	r0, r4
+ 8001732:	d10d      	bne.n	8001750 <_malloc_r+0x98>
+ 8001734:	6025      	str	r5, [r4, #0]
+ 8001736:	4630      	mov	r0, r6
+ 8001738:	f000 f873 	bl	8001822 <__malloc_unlock>
+ 800173c:	f104 000b 	add.w	r0, r4, #11
+ 8001740:	1d23      	adds	r3, r4, #4
+ 8001742:	f020 0007 	bic.w	r0, r0, #7
+ 8001746:	1ac3      	subs	r3, r0, r3
+ 8001748:	d00e      	beq.n	8001768 <_malloc_r+0xb0>
+ 800174a:	425a      	negs	r2, r3
+ 800174c:	50e2      	str	r2, [r4, r3]
+ 800174e:	bd70      	pop	{r4, r5, r6, pc}
+ 8001750:	1a21      	subs	r1, r4, r0
+ 8001752:	4630      	mov	r0, r6
+ 8001754:	f000 f80e 	bl	8001774 <_sbrk_r>
+ 8001758:	3001      	adds	r0, #1
+ 800175a:	d1eb      	bne.n	8001734 <_malloc_r+0x7c>
+ 800175c:	230c      	movs	r3, #12
+ 800175e:	6033      	str	r3, [r6, #0]
+ 8001760:	4630      	mov	r0, r6
+ 8001762:	f000 f85e 	bl	8001822 <__malloc_unlock>
+ 8001766:	2000      	movs	r0, #0
+ 8001768:	bd70      	pop	{r4, r5, r6, pc}
+ 800176a:	bf00      	nop
+ 800176c:	2000012c 	.word	0x2000012c
+ 8001770:	20000128 	.word	0x20000128
+
+08001774 <_sbrk_r>:
+ 8001774:	b538      	push	{r3, r4, r5, lr}
+ 8001776:	4c06      	ldr	r4, [pc, #24]	; (8001790 <_sbrk_r+0x1c>)
+ 8001778:	2300      	movs	r3, #0
+ 800177a:	4605      	mov	r5, r0
+ 800177c:	4608      	mov	r0, r1
+ 800177e:	6023      	str	r3, [r4, #0]
+ 8001780:	f000 f860 	bl	8001844 <_sbrk>
+ 8001784:	1c43      	adds	r3, r0, #1
+ 8001786:	d102      	bne.n	800178e <_sbrk_r+0x1a>
+ 8001788:	6823      	ldr	r3, [r4, #0]
+ 800178a:	b103      	cbz	r3, 800178e <_sbrk_r+0x1a>
+ 800178c:	602b      	str	r3, [r5, #0]
+ 800178e:	bd38      	pop	{r3, r4, r5, pc}
+ 8001790:	20000134 	.word	0x20000134
+
+08001794 <_raise_r>:
+ 8001794:	291f      	cmp	r1, #31
+ 8001796:	b538      	push	{r3, r4, r5, lr}
+ 8001798:	4604      	mov	r4, r0
+ 800179a:	460d      	mov	r5, r1
+ 800179c:	d904      	bls.n	80017a8 <_raise_r+0x14>
+ 800179e:	2316      	movs	r3, #22
+ 80017a0:	6003      	str	r3, [r0, #0]
+ 80017a2:	f04f 30ff 	mov.w	r0, #4294967295
+ 80017a6:	bd38      	pop	{r3, r4, r5, pc}
+ 80017a8:	6c42      	ldr	r2, [r0, #68]	; 0x44
+ 80017aa:	b112      	cbz	r2, 80017b2 <_raise_r+0x1e>
+ 80017ac:	f852 3021 	ldr.w	r3, [r2, r1, lsl #2]
+ 80017b0:	b94b      	cbnz	r3, 80017c6 <_raise_r+0x32>
+ 80017b2:	4620      	mov	r0, r4
+ 80017b4:	f000 f832 	bl	800181c <_getpid_r>
+ 80017b8:	462a      	mov	r2, r5
+ 80017ba:	4601      	mov	r1, r0
+ 80017bc:	4620      	mov	r0, r4
+ 80017be:	e8bd 4038 	ldmia.w	sp!, {r3, r4, r5, lr}
+ 80017c2:	f000 b819 	b.w	80017f8 <_kill_r>
+ 80017c6:	2b01      	cmp	r3, #1
+ 80017c8:	d00c      	beq.n	80017e4 <_raise_r+0x50>
+ 80017ca:	1c59      	adds	r1, r3, #1
+ 80017cc:	d103      	bne.n	80017d6 <_raise_r+0x42>
+ 80017ce:	2316      	movs	r3, #22
+ 80017d0:	6003      	str	r3, [r0, #0]
+ 80017d2:	2001      	movs	r0, #1
+ 80017d4:	bd38      	pop	{r3, r4, r5, pc}
+ 80017d6:	2400      	movs	r4, #0
+ 80017d8:	4628      	mov	r0, r5
+ 80017da:	f842 4025 	str.w	r4, [r2, r5, lsl #2]
+ 80017de:	4798      	blx	r3
+ 80017e0:	4620      	mov	r0, r4
+ 80017e2:	bd38      	pop	{r3, r4, r5, pc}
+ 80017e4:	2000      	movs	r0, #0
+ 80017e6:	bd38      	pop	{r3, r4, r5, pc}
+
+080017e8 <raise>:
+ 80017e8:	4b02      	ldr	r3, [pc, #8]	; (80017f4 <raise+0xc>)
+ 80017ea:	4601      	mov	r1, r0
+ 80017ec:	6818      	ldr	r0, [r3, #0]
+ 80017ee:	f7ff bfd1 	b.w	8001794 <_raise_r>
+ 80017f2:	bf00      	nop
+ 80017f4:	20000064 	.word	0x20000064
+
+080017f8 <_kill_r>:
+ 80017f8:	b538      	push	{r3, r4, r5, lr}
+ 80017fa:	4c07      	ldr	r4, [pc, #28]	; (8001818 <_kill_r+0x20>)
+ 80017fc:	2300      	movs	r3, #0
+ 80017fe:	4605      	mov	r5, r0
+ 8001800:	4608      	mov	r0, r1
+ 8001802:	4611      	mov	r1, r2
+ 8001804:	6023      	str	r3, [r4, #0]
+ 8001806:	f000 f815 	bl	8001834 <_kill>
+ 800180a:	1c43      	adds	r3, r0, #1
+ 800180c:	d102      	bne.n	8001814 <_kill_r+0x1c>
+ 800180e:	6823      	ldr	r3, [r4, #0]
+ 8001810:	b103      	cbz	r3, 8001814 <_kill_r+0x1c>
+ 8001812:	602b      	str	r3, [r5, #0]
+ 8001814:	bd38      	pop	{r3, r4, r5, pc}
+ 8001816:	bf00      	nop
+ 8001818:	20000134 	.word	0x20000134
+
+0800181c <_getpid_r>:
+ 800181c:	f000 b802 	b.w	8001824 <_getpid>
+
+08001820 <__malloc_lock>:
+ 8001820:	4770      	bx	lr
+
+08001822 <__malloc_unlock>:
+ 8001822:	4770      	bx	lr
+
+08001824 <_getpid>:
+ 8001824:	4b02      	ldr	r3, [pc, #8]	; (8001830 <_getpid+0xc>)
+ 8001826:	2258      	movs	r2, #88	; 0x58
+ 8001828:	601a      	str	r2, [r3, #0]
+ 800182a:	f04f 30ff 	mov.w	r0, #4294967295
+ 800182e:	4770      	bx	lr
+ 8001830:	20000134 	.word	0x20000134
+
+08001834 <_kill>:
+ 8001834:	4b02      	ldr	r3, [pc, #8]	; (8001840 <_kill+0xc>)
+ 8001836:	2258      	movs	r2, #88	; 0x58
+ 8001838:	601a      	str	r2, [r3, #0]
+ 800183a:	f04f 30ff 	mov.w	r0, #4294967295
+ 800183e:	4770      	bx	lr
+ 8001840:	20000134 	.word	0x20000134
+
+08001844 <_sbrk>:
+ 8001844:	4b04      	ldr	r3, [pc, #16]	; (8001858 <_sbrk+0x14>)
+ 8001846:	6819      	ldr	r1, [r3, #0]
+ 8001848:	4602      	mov	r2, r0
+ 800184a:	b909      	cbnz	r1, 8001850 <_sbrk+0xc>
+ 800184c:	4903      	ldr	r1, [pc, #12]	; (800185c <_sbrk+0x18>)
+ 800184e:	6019      	str	r1, [r3, #0]
+ 8001850:	6818      	ldr	r0, [r3, #0]
+ 8001852:	4402      	add	r2, r0
+ 8001854:	601a      	str	r2, [r3, #0]
+ 8001856:	4770      	bx	lr
+ 8001858:	20000130 	.word	0x20000130
+ 800185c:	20000138 	.word	0x20000138
+
+08001860 <_exit>:
+ 8001860:	e7fe      	b.n	8001860 <_exit>
+	...
+
+08001864 <_init>:
+ 8001864:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8001866:	bf00      	nop
+ 8001868:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 800186a:	bc08      	pop	{r3}
+ 800186c:	469e      	mov	lr, r3
+ 800186e:	4770      	bx	lr
+
+08001870 <_fini>:
+ 8001870:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8001872:	bf00      	nop
+ 8001874:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8001876:	bc08      	pop	{r3}
+ 8001878:	469e      	mov	lr, r3
+ 800187a:	4770      	bx	lr

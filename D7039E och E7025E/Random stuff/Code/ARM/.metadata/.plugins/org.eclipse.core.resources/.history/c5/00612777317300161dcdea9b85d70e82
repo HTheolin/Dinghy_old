@@ -1,0 +1,33 @@
+/*
+ * Led.cpp
+ *
+ *  Created on: 5 sep. 2016
+ *      Author: Bjorn
+ */
+#include "Headers/Led.h"
+
+void Led::Startup()
+{
+
+}
+
+void Led::Shutdown()
+{
+
+}
+
+void Led::Sleep()
+{
+
+}
+
+void Led::Startup()
+{
+
+}
+
+int Led::Poll()
+{
+
+}
+
